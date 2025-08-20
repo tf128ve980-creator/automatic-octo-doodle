@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ハナハナ設定推測ツール</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         html { color-scheme: dark; }
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -15,11 +14,6 @@
         .counter-btn { width: 3rem; height: 3rem; font-size: 1.5rem; line-height: 2rem; }
         .rainbow-text { background: linear-gradient(to right, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .rainbow-btn { background: linear-gradient(to right, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6); }
-        /* AI分析結果のスタイル */
-        #aiAdvisorResult h3 { font-size: 1.125rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; padding-bottom: 0.25rem; border-bottom: 1px solid #4a5568; }
-        #aiAdvisorResult ul { list-style-position: inside; padding-left: 0.5rem; }
-        #aiAdvisorResult li { margin-bottom: 0.25rem; }
-        #aiAdvisorResult p { margin-top: 1rem; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 flex flex-col items-center min-h-screen p-4">
@@ -102,24 +96,11 @@
         </div>
 
         <!-- 設定推測結果 -->
-        <div class="bg-gray-800 p-4 rounded-lg"><h2 class="text-center text-lg font-semibold mb-4 text-gray-300">設定推測結果</h2><div id="estimationResult" class="space-y-2"></div></div>
-        
-        <!-- AI 設定推測アドバイザー -->
-        <div class="bg-gray-800 p-4 rounded-lg mt-6">
-            <h2 class="text-center text-lg font-semibold mb-4 text-gray-300">
-                <span class="rainbow-text">AI 設定推測アドバイザー</span>
-            </h2>
-            <p class="text-center text-sm text-gray-400 mb-4">現在の遊技データから、AIが台の状況を分析します。</p>
-            <div class="text-center">
-                <button id="aiAdvisorButton" class="btn bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg transition-transform transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-                    ✨ AIに分析を依頼する
-                </button>
-            </div>
-            <div id="aiAdvisorResult" class="mt-4 p-4 bg-gray-900 rounded-lg text-gray-300 hidden">
-                <!-- AIの分析結果がここに表示される -->
-            </div>
+        <div class="bg-gray-800 p-4 rounded-lg">
+            <h2 class="text-center text-lg font-semibold mb-4 text-gray-300">設定推測結果</h2>
+            <div id="estimationResult" class="space-y-2"></div>
+            <div id="simpleAnalysis" class="mt-4 pt-4 border-t border-gray-700 text-sm text-gray-400 text-center"></div>
         </div>
-
         <div class="mt-8 text-center"><button id="resetButton" class="btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg transition-transform transform active:scale-95">リセット</button></div>
     </div>
 
@@ -132,9 +113,9 @@
                 bigSuika: { input: document.getElementById('bigSuikaCountInput'), inc: document.getElementById('bigSuikaIncrement'), dec: document.getElementById('bigSuikaDecrement'), prob: document.getElementById('bigSuikaProb') },
                 regSide: {}, feather: { big: {}, reg: {} },
                 oddRatio: document.getElementById('oddRatio'), evenRatio: document.getElementById('evenRatio'),
-                estimationResult: document.getElementById('estimationResult'), resetButton: document.getElementById('resetButton'),
-                aiAdvisorButton: document.getElementById('aiAdvisorButton'),
-                aiAdvisorResult: document.getElementById('aiAdvisorResult'),
+                estimationResult: document.getElementById('estimationResult'), 
+                simpleAnalysis: document.getElementById('simpleAnalysis'),
+                resetButton: document.getElementById('resetButton')
             };
             const colors = ['blue', 'yellow', 'green', 'red', 'rainbow'];
             colors.forEach(c => {
@@ -206,9 +187,11 @@
             setupListeners(elements.regSide, state.regSide);
             setupListeners(elements.feather, state.feather);
             
-            elements.resetButton.addEventListener('click', () => { if (confirm('データをリセットしますか？')) { resetState(); updateAll(); } });
-
-            elements.aiAdvisorButton.addEventListener('click', handleAiAdvisorClick);
+            // リセットボタンの不具合を修正 (confirmを削除)
+            elements.resetButton.addEventListener('click', () => {
+                resetState();
+                updateAll();
+            });
 
             function updateStateFromInput() {
                 state.totalGames = parseInt(elements.totalGames.value) || 0;
@@ -264,7 +247,9 @@
 
             function estimateSettings() {
                 if (state.totalGames < 100) {
-                    elements.estimationResult.innerHTML = '<p class="text-center text-gray-500">ゲーム数が不足しています。</p>'; return;
+                    elements.estimationResult.innerHTML = '<p class="text-center text-gray-500">ゲーム数が不足しています。</p>';
+                    elements.simpleAnalysis.innerHTML = '';
+                    return;
                 }
 
                 const currentModelValues = theoreticalValues[state.currentModel];
@@ -272,6 +257,7 @@
                 if (state.feather.reg.rainbow > 0 && currentModelValues[6].regRainbowBonus) {
                     const possibilities = { 1: 0.5, 2: 0.5, 3: 1.0, 4: 1.0, 5: 2.0, 6: 95.0 };
                     displayEstimationResult(possibilities);
+                    displaySimpleAnalysis(possibilities);
                     return;
                 }
 
@@ -307,6 +293,7 @@
                 for (let i = 1; i <= 6; i++) { possibilities[i] = (scores[i] / invertedScoreSum) * 100; }
 
                 displayEstimationResult(possibilities);
+                displaySimpleAnalysis(possibilities);
             }
 
             function displayEstimationResult(possibilities) {
@@ -320,106 +307,65 @@
                 elements.estimationResult.innerHTML = html;
             }
 
-            async function handleAiAdvisorClick() {
-                if (state.totalGames < 100) {
-                    alert('AI分析には最低100ゲーム以上のデータが必要です。');
+            function displaySimpleAnalysis(possibilities) {
+                const analysisEl = elements.simpleAnalysis;
+                const currentModelValues = theoreticalValues[state.currentModel];
+                let analysisHTML = '<p><span class="font-bold text-gray-200">簡易分析:</span><br>';
+
+                if (state.feather.reg.rainbow > 0 && currentModelValues[6].regRainbowBonus) {
+                    analysisHTML += '<span class="font-bold text-red-400">REG後の虹フェザーは設定6が濃厚です！</span></p>';
+                    analysisEl.innerHTML = analysisHTML;
                     return;
                 }
 
-                elements.aiAdvisorButton.disabled = true;
-                elements.aiAdvisorButton.textContent = '分析中...';
-                elements.aiAdvisorResult.classList.remove('hidden');
-                elements.aiAdvisorResult.innerHTML = '<p class="text-center">AIが分析しています。しばらくお待ちください...</p>';
+                const sorted = Object.entries(possibilities).sort(([, a], [, b]) => b - a);
+                const [bestSetting, bestPossibility] = sorted[0];
+                const secondBestSetting = sorted[1] ? sorted[1][0] : null;
+                const secondBestPossibility = secondBestSetting ? possibilities[secondBestSetting] : 0;
 
-                const modelName = elements.modelSelector.options[elements.modelSelector.selectedIndex].text;
-                const bellProbText = state.bell > 0 ? (state.totalGames / state.bell).toFixed(2) : '---';
-                const bigSuikaProbText = (state.bigCount * 24 > 0 && state.bigSuika > 0) ? ((state.bigCount * 24) / state.bigSuika).toFixed(2) : '---';
-
-                const prompt = `
-あなたはハナハナシリーズを熟知したプロのパチスロプレイヤーです。
-以下の実践データに基づいて、台の設定を推測し、その根拠を分析してください。
-
-分析結果は、以下の形式で、初心者にも分かりやすくマークダウン形式で記述してください。
-
-### ポジティブな要素 (高設定の可能性を高める要素)
-- (箇条書きで記述)
-
-### ネガティブな要素 (高設定の可能性を下げる要素)
-- (箇条書きで記述)
-
-### 総合的な見解
-(今後の立ち回りについてのアドバイスを、断定は避けつつ記述)
-
----
-# 実践データ
-- 機種: ${modelName}
-- 総ゲーム数: ${state.totalGames} G
-- BIG回数: ${state.bigCount} 回 (確率 1/${state.bigCount > 0 ? (state.totalGames / state.bigCount).toFixed(1) : '---'})
-- REG回数: ${state.regCount} 回 (確率 1/${state.regCount > 0 ? (state.totalGames / state.regCount).toFixed(1) : '---'})
-- 合算確率: 1/${(state.bigCount + state.regCount) > 0 ? (state.totalGames / (state.bigCount + state.regCount)).toFixed(1) : '---'}
-- ベル確率: 1/${bellProbText}
-- BIG中スイカ: ${state.bigSuika} 回 (BIG ${state.bigCount}回, 確率 1/${bigSuikaProbText})
-- REGサイドランプ: 青:${state.regSide.blue}, 黄:${state.regSide.yellow}, 緑:${state.regSide.green}, 赤:${state.regSide.red}, 虹:${state.regSide.rainbow}
-- BIG後フェザーランプ: 青:${state.feather.big.blue}, 黄:${state.feather.big.yellow}, 緑:${state.feather.big.green}, 赤:${state.feather.big.red}, 虹:${state.feather.big.rainbow}
-- REG後フェザーランプ: 青:${state.feather.reg.blue}, 黄:${state.feather.reg.yellow}, 緑:${state.feather.reg.green}, 赤:${state.feather.reg.red}, 虹:${state.feather.reg.rainbow}
----
-
-上記データに基づいて、分析を開始してください。
-`;
-                try {
-                    const text = await callGeminiApi(prompt);
-                    elements.aiAdvisorResult.innerHTML = marked.parse(text);
-                } catch (error) {
-                    console.error("Gemini API Error:", error);
-                    elements.aiAdvisorResult.innerHTML = '<p class="text-center text-red-400">AI分析中にエラーが発生しました。時間をおいて再度お試しください。</p>';
-                } finally {
-                    elements.aiAdvisorButton.disabled = false;
-                    elements.aiAdvisorButton.innerHTML = '✨ AIに分析を依頼する';
+                let reasons = [];
+                if (state.bell > 0) {
+                    const bellProb = state.totalGames / state.bell;
+                    let closestSetting = '1', minDiff = Infinity;
+                    for (let i = 1; i <= 6; i++) { const diff = Math.abs(bellProb - currentModelValues[i].bell); if (diff < minDiff) { minDiff = diff; closestSetting = i.toString(); } }
+                    if (closestSetting === bestSetting) { reasons.push(`ベル確率(1/${bellProb.toFixed(1)})`); }
                 }
-            }
-            
-            async function callGeminiApi(prompt) {
-                 let chatHistory = [];
-                 chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                 const payload = { contents: chatHistory };
-                 const apiKey = "" 
-                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                 
-                 const result = await fetchWithBackoff(apiUrl, payload);
-                 if (result.candidates && result.candidates.length > 0 &&
-                     result.candidates[0].content && result.candidates[0].content.parts &&
-                     result.candidates[0].content.parts.length > 0) {
-                   return result.candidates[0].content.parts[0].text;
-                 } else {
-                   throw new Error("AIからの応答が予期した形式ではありません。");
-                 }
-            }
+                if (state.bigSuika > 0 && state.bigCount > 0) {
+                    const bigSuikaProb = (state.bigCount * 24) / state.bigSuika;
+                    let closestSetting = '1', minDiff = Infinity;
+                    for (let i = 1; i <= 6; i++) { const diff = Math.abs(bigSuikaProb - currentModelValues[i].bigSuika); if (diff < minDiff) { minDiff = diff; closestSetting = i.toString(); } }
+                    if (closestSetting === bestSetting) { reasons.push(`BIG中スイカ(1/${bigSuikaProb.toFixed(1)})`); }
+                }
+                const totalFlashes = state.regSide.blue + state.regSide.yellow + state.regSide.green + state.regSide.red;
+                if (totalFlashes > 0) {
+                    const oddRatio = (state.regSide.blue + state.regSide.yellow) / totalFlashes;
+                    if (['1', '3', '5'].includes(bestSetting) && oddRatio >= 0.5) { reasons.push(`REGランプ(奇数示唆)`); }
+                    else if (['2', '4', '6'].includes(bestSetting) && oddRatio < 0.5) { reasons.push(`REGランプ(偶数示唆)`); }
+                }
+                if (state.feather.big.rainbow > 0 || state.feather.reg.rainbow > 0) { reasons.push(`虹フェザー`); }
 
-            async function fetchWithBackoff(apiUrl, payload, maxRetries = 3) {
-                let delay = 1000;
-                for (let i = 0; i < maxRetries; i++) {
-                    try {
-                        const response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-
-                        if (response.ok) {
-                            return await response.json();
-                        } else if (response.status === 429 || response.status >= 500) {
-                            if (i === maxRetries - 1) throw new Error(`API call failed with status ${response.status}`);
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                            delay *= 2;
-                        } else {
-                            throw new Error(`API call failed with status ${response.status}`);
-                        }
-                    } catch (error) {
-                        if (i === maxRetries - 1) throw error;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2;
+                if (secondBestSetting && (bestPossibility - secondBestPossibility < 15) && secondBestPossibility > 20) {
+                    analysisHTML += `設定<span class="font-bold text-red-400">${bestSetting}</span>と設定<span class="font-bold text-yellow-400">${secondBestSetting}</span>の可能性が近しい状況です。`;
+                } else {
+                    if (reasons.length > 0) {
+                        analysisHTML += `設定<span class="font-bold text-red-400">${bestSetting}</span>の可能性が高い主な要因は、${reasons.slice(0, 2).join('、')}です。`;
+                    } else {
+                        analysisHTML += '各要素を総合的に判断しています。';
                     }
                 }
+                
+                const totalBonusCount = state.bigCount + state.regCount;
+                if (totalBonusCount > 0) {
+                    const bonusProb = state.totalGames / totalBonusCount;
+                    if (bonusProb < 140) {
+                         analysisHTML += "<br>ボーナス合算も良好なため、高設定に期待が持てます。";
+                    } else if (state.totalGames > 2000 && bonusProb > 170) {
+                         analysisHTML += "<br>ボーナス合算が重い点が懸念されます。";
+                    }
+                }
+
+                analysisHTML += '</p>';
+                analysisEl.innerHTML = analysisHTML;
             }
 
             updateAll();
