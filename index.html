@@ -99,7 +99,6 @@
         <div class="bg-gray-800 p-4 rounded-lg">
             <h2 class="text-center text-lg font-semibold mb-4 text-gray-300">設定推測結果</h2>
             <div id="estimationResult" class="space-y-2"></div>
-            <div id="simpleAnalysis" class="mt-4 pt-4 border-t border-gray-700 text-sm text-gray-400 text-center"></div>
         </div>
         <div class="mt-8 text-center"><button id="resetButton" class="btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg transition-transform transform active:scale-95">リセット</button></div>
     </div>
@@ -114,7 +113,6 @@
                 regSide: {}, feather: { big: {}, reg: {} },
                 oddRatio: document.getElementById('oddRatio'), evenRatio: document.getElementById('evenRatio'),
                 estimationResult: document.getElementById('estimationResult'), 
-                simpleAnalysis: document.getElementById('simpleAnalysis'),
                 resetButton: document.getElementById('resetButton')
             };
             const colors = ['blue', 'yellow', 'green', 'red', 'rainbow'];
@@ -157,13 +155,13 @@
                     5: { bell: 7.49, bigSuika: 48.2, regOdd: 0.65, feather: { odd: 0.1, even: -0.1, rainbow: 0.5 } },
                     6: { bell: 7.39, bigSuika: 39.0, regOdd: 0.45, feather: { odd: -0.1, even: 0.1, rainbow: 1.0 }, regRainbowBonus: true },
                 },
-                star: {
-                    1: { bell: 7.53, bigSuika: 42.0, regOdd: 0.7, feather: { odd: 0.1, even: -0.1, rainbow: 1.0 } },
-                    2: { bell: 7.49, bigSuika: 42.0, regOdd: 0.4, feather: { odd: -0.1, even: 0.1, rainbow: 1.0 } },
-                    3: { bell: 7.44, bigSuika: 42.0, regOdd: 0.7, feather: { odd: 0.1, even: -0.1, rainbow: 1.0 } },
-                    4: { bell: 7.39, bigSuika: 42.0, regOdd: 0.4, feather: { odd: -0.1, even: 0.1, rainbow: 1.0 } },
-                    5: { bell: 7.35, bigSuika: 42.0, regOdd: 0.7, feather: { odd: 0.1, even: -0.1, rainbow: 1.0 } },
-                    6: { bell: 7.30, bigSuika: 34.8, regOdd: 0.4, feather: { odd: -0.1, even: 0.1, rainbow: 1.0 } },
+                star: { // スターハナハナのフェザーランプは設定差がないためスコア影響を0に
+                    1: { bell: 7.53, bigSuika: 42.0, regOdd: 0.7, feather: { odd: 0, even: 0, rainbow: 0 } },
+                    2: { bell: 7.49, bigSuika: 42.0, regOdd: 0.4, feather: { odd: 0, even: 0, rainbow: 0 } },
+                    3: { bell: 7.44, bigSuika: 42.0, regOdd: 0.7, feather: { odd: 0, even: 0, rainbow: 0 } },
+                    4: { bell: 7.39, bigSuika: 42.0, regOdd: 0.4, feather: { odd: 0, even: 0, rainbow: 0 } },
+                    5: { bell: 7.35, bigSuika: 42.0, regOdd: 0.7, feather: { odd: 0, even: 0, rainbow: 0 } },
+                    6: { bell: 7.30, bigSuika: 34.8, regOdd: 0.4, feather: { odd: 0, even: 0, rainbow: 0 }, regRainbowBonus: false },
                 }
             };
             
@@ -187,10 +185,11 @@
             setupListeners(elements.regSide, state.regSide);
             setupListeners(elements.feather, state.feather);
             
-            // リセットボタンの不具合を修正 (confirmを削除)
             elements.resetButton.addEventListener('click', () => {
-                resetState();
-                updateAll();
+                if (confirm('本当にすべてのデータをリセットしますか？')) {
+                    resetState();
+                    updateAll();
+                }
             });
 
             function updateStateFromInput() {
@@ -248,7 +247,6 @@
             function estimateSettings() {
                 if (state.totalGames < 100) {
                     elements.estimationResult.innerHTML = '<p class="text-center text-gray-500">ゲーム数が不足しています。</p>';
-                    elements.simpleAnalysis.innerHTML = '';
                     return;
                 }
 
@@ -257,7 +255,6 @@
                 if (state.feather.reg.rainbow > 0 && currentModelValues[6].regRainbowBonus) {
                     const possibilities = { 1: 0.5, 2: 0.5, 3: 1.0, 4: 1.0, 5: 2.0, 6: 95.0 };
                     displayEstimationResult(possibilities);
-                    displaySimpleAnalysis(possibilities);
                     return;
                 }
 
@@ -293,7 +290,6 @@
                 for (let i = 1; i <= 6; i++) { possibilities[i] = (scores[i] / invertedScoreSum) * 100; }
 
                 displayEstimationResult(possibilities);
-                displaySimpleAnalysis(possibilities);
             }
 
             function displayEstimationResult(possibilities) {
@@ -305,67 +301,6 @@
                     html += `<div class="flex items-center space-x-3"><span class="w-12 text-lg ${isBest ? 'text-red-400 font-bold' : 'text-gray-300'}">設定 ${s}</span><div class="w-full bg-gray-700 rounded-full h-6"><div class="${isBest ? 'bg-red-500' : 'bg-gray-600'} h-6 rounded-full text-center text-white text-sm flex items-center justify-center" style="width: ${p.toFixed(1)}%;">${p > 5 ? p.toFixed(1) + '%' : ''}</div></div></div>`;
                 });
                 elements.estimationResult.innerHTML = html;
-            }
-
-            function displaySimpleAnalysis(possibilities) {
-                const analysisEl = elements.simpleAnalysis;
-                const currentModelValues = theoreticalValues[state.currentModel];
-                let analysisHTML = '<p><span class="font-bold text-gray-200">簡易分析:</span><br>';
-
-                if (state.feather.reg.rainbow > 0 && currentModelValues[6].regRainbowBonus) {
-                    analysisHTML += '<span class="font-bold text-red-400">REG後の虹フェザーは設定6が濃厚です！</span></p>';
-                    analysisEl.innerHTML = analysisHTML;
-                    return;
-                }
-
-                const sorted = Object.entries(possibilities).sort(([, a], [, b]) => b - a);
-                const [bestSetting, bestPossibility] = sorted[0];
-                const secondBestSetting = sorted[1] ? sorted[1][0] : null;
-                const secondBestPossibility = secondBestSetting ? possibilities[secondBestSetting] : 0;
-
-                let reasons = [];
-                if (state.bell > 0) {
-                    const bellProb = state.totalGames / state.bell;
-                    let closestSetting = '1', minDiff = Infinity;
-                    for (let i = 1; i <= 6; i++) { const diff = Math.abs(bellProb - currentModelValues[i].bell); if (diff < minDiff) { minDiff = diff; closestSetting = i.toString(); } }
-                    if (closestSetting === bestSetting) { reasons.push(`ベル確率(1/${bellProb.toFixed(1)})`); }
-                }
-                if (state.bigSuika > 0 && state.bigCount > 0) {
-                    const bigSuikaProb = (state.bigCount * 24) / state.bigSuika;
-                    let closestSetting = '1', minDiff = Infinity;
-                    for (let i = 1; i <= 6; i++) { const diff = Math.abs(bigSuikaProb - currentModelValues[i].bigSuika); if (diff < minDiff) { minDiff = diff; closestSetting = i.toString(); } }
-                    if (closestSetting === bestSetting) { reasons.push(`BIG中スイカ(1/${bigSuikaProb.toFixed(1)})`); }
-                }
-                const totalFlashes = state.regSide.blue + state.regSide.yellow + state.regSide.green + state.regSide.red;
-                if (totalFlashes > 0) {
-                    const oddRatio = (state.regSide.blue + state.regSide.yellow) / totalFlashes;
-                    if (['1', '3', '5'].includes(bestSetting) && oddRatio >= 0.5) { reasons.push(`REGランプ(奇数示唆)`); }
-                    else if (['2', '4', '6'].includes(bestSetting) && oddRatio < 0.5) { reasons.push(`REGランプ(偶数示唆)`); }
-                }
-                if (state.feather.big.rainbow > 0 || state.feather.reg.rainbow > 0) { reasons.push(`虹フェザー`); }
-
-                if (secondBestSetting && (bestPossibility - secondBestPossibility < 15) && secondBestPossibility > 20) {
-                    analysisHTML += `設定<span class="font-bold text-red-400">${bestSetting}</span>と設定<span class="font-bold text-yellow-400">${secondBestSetting}</span>の可能性が近しい状況です。`;
-                } else {
-                    if (reasons.length > 0) {
-                        analysisHTML += `設定<span class="font-bold text-red-400">${bestSetting}</span>の可能性が高い主な要因は、${reasons.slice(0, 2).join('、')}です。`;
-                    } else {
-                        analysisHTML += '各要素を総合的に判断しています。';
-                    }
-                }
-                
-                const totalBonusCount = state.bigCount + state.regCount;
-                if (totalBonusCount > 0) {
-                    const bonusProb = state.totalGames / totalBonusCount;
-                    if (bonusProb < 140) {
-                         analysisHTML += "<br>ボーナス合算も良好なため、高設定に期待が持てます。";
-                    } else if (state.totalGames > 2000 && bonusProb > 170) {
-                         analysisHTML += "<br>ボーナス合算が重い点が懸念されます。";
-                    }
-                }
-
-                analysisHTML += '</p>';
-                analysisEl.innerHTML = analysisHTML;
             }
 
             updateAll();
