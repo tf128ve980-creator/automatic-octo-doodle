@@ -3,308 +3,708 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ハナハナ設定推測ツール</title>
+    <title>HANAHANA設定推測ツール</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        html { color-scheme: dark; }
-        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .btn:focus { outline: none; box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); }
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
-        .counter-btn { width: 3rem; height: 3rem; font-size: 1.5rem; line-height: 2rem; }
-        .rainbow-text { background: linear-gradient(to right, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .rainbow-btn { background: linear-gradient(to right, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6); }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* bg-gray-900 */
+        }
+        .counter-btn {
+            transition: background-color 0.2s;
+        }
+        .counter-btn:active {
+            transform: scale(0.95);
+        }
+        .result-bar-inner {
+            transition: width 0.5s ease-in-out;
+        }
+        /* スクロールバーのスタイル */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2d3748; /* bg-gray-800 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568; /* bg-gray-700 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096; /* bg-gray-600 */
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 flex flex-col items-center min-h-screen p-4">
+<body class="text-white">
 
-    <div class="w-full max-w-2xl mx-auto">
-        <!-- ヘッダー -->
-        <header class="text-center mb-4 flex items-center justify-center space-x-3">
-            <svg class="w-10 h-10 text-red-500" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M16.5,8.67c-0.83-0.83-1.94-1.3-3.09-1.32c-0.34,0-0.67,0.04-1,0.11C11.38,3.67,7.84,1.83,4.5,2.41 c-1.33,0.23-2.5,1-3.26,2.11c-1.39,2.03-0.53,4.79,1.62,6.94c2.15,2.15,4.91,2.98,6.94,1.62c0.76-0.45,1.36-1.05,1.8-1.75 c0.02,0,0.04,0,0.06,0c0.02,0,0.04,0,0.06,0c0.45,0.7,1.04,1.3,1.8,1.75c2.03,1.36,4.79,0.53,6.94-1.62 c2.15-2.15,2.98-4.91,1.62-6.94c-0.76-1.11-1.93-1.88-3.26-2.11C16.16,1.83,12.62,3.67,11.59,7.48 C12.29,7.38,12.96,7.4,13.59,7.6c0.6,0.19,1.16,0.49,1.65,0.88C15.71,8.95,16.12,9.2,16.5,8.67z M12,10.5 c-0.83,0-1.5-0.67-1.5-1.5s0.67-1.5,1.5-1.5s1.5,0.67,1.5,1.5S12.83,10.5,12,10.5z"/></svg>
-            <h1 class="text-2xl sm:text-3xl font-bold text-red-500 tracking-wider">ハナハナ設定推測ツール</h1>
+    <div class="container mx-auto p-4 max-w-2xl">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-pink-400 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flower-2"><path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m4 0a3 3 0 1 1-3 3m3-3h-1m-3 4v-1m0 1a3 3 0 1 0 3-3m-3 3h1m-1-4a3 3 0 1 1-3-3m3 3v-1"/><path d="M6 15.2c2.8 2.8 8.4 2.8 11.2 0"/></svg>
+                ハナハナ設定推測ツール
+            </h1>
         </header>
-        
-        <!-- 機種選択 -->
-        <div class="mb-6">
-            <label for="modelSelector" class="block text-sm font-medium text-gray-400 mb-2 text-center">機種を選択してください</label>
-            <select id="modelSelector" class="w-full bg-gray-700 border border-gray-600 text-white text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
-                <option value="houou">ハナハナホウオウ～天翔～</option>
-                <option value="king">キングハナハナ</option>
-                <option value="dragon">ドラゴンハナハナ～閃光～</option>
-                <option value="star">スターハナハナ</option>
-            </select>
-        </div>
 
-        <!-- 基本情報入力 -->
-        <div class="grid grid-cols-3 gap-3 mb-6">
-            <div class="bg-gray-800 p-3 rounded-lg text-center"><label for="totalGames" class="text-sm font-medium text-gray-400">総ゲーム数</label><input type="number" id="totalGames" class="w-full bg-gray-700 text-white text-2xl font-bold text-center rounded-md p-2 mt-1" value="0" inputmode="numeric"></div>
-            <div class="bg-gray-800 p-3 rounded-lg text-center"><label for="bigCount" class="text-sm font-medium text-gray-400">BIG</label><input type="number" id="bigCount" class="w-full bg-gray-700 text-white text-2xl font-bold text-center rounded-md p-2 mt-1" value="0" inputmode="numeric"></div>
-            <div class="bg-gray-800 p-3 rounded-lg text-center"><label for="regCount" class="text-sm font-medium text-gray-400">REG</label><input type="number" id="regCount" class="w-full bg-gray-700 text-white text-2xl font-bold text-center rounded-md p-2 mt-1" value="0" inputmode="numeric"></div>
-        </div>
-
-        <!-- カウンターエリア -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="bg-gray-800 p-4 rounded-lg flex flex-col items-center justify-between"><label for="bellCountInput" class="text-lg font-semibold mb-2 text-yellow-400">ベル</label><div class="flex items-center space-x-2"><button id="bellDecrement" class="btn counter-btn bg-gray-600 hover:bg-gray-700 rounded-full transition-transform transform active:scale-95">-</button><input type="number" id="bellCountInput" class="w-24 bg-gray-700 text-white text-2xl font-bold text-center rounded-md p-2" value="0" inputmode="numeric"><button id="bellIncrement" class="btn counter-btn bg-yellow-500 hover:bg-yellow-600 text-gray-900 rounded-full transition-transform transform active:scale-95">+</button></div><p class="mt-3 text-sm text-yellow-400">1 / <span id="bellProb">---</span></p></div>
-            <div class="bg-gray-800 p-4 rounded-lg flex flex-col items-center justify-between"><label for="bigSuikaCountInput" class="text-lg font-semibold mb-2 text-red-400">BIG中スイカ</label><div class="flex items-center space-x-2"><button id="bigSuikaDecrement" class="btn counter-btn bg-gray-600 hover:bg-gray-700 rounded-full transition-transform transform active:scale-95">-</button><input type="number" id="bigSuikaCountInput" class="w-24 bg-gray-700 text-white text-2xl font-bold text-center rounded-md p-2" value="0" inputmode="numeric"><button id="bigSuikaIncrement" class="btn counter-btn bg-red-600 hover:bg-red-700 rounded-full transition-transform transform active:scale-95">+</button></div><p class="mt-3 text-sm text-red-400">1 / <span id="bigSuikaProb">---</span></p></div>
-        </div>
-
-        <!-- REGサイドランプ -->
-        <div class="bg-gray-800 p-4 rounded-lg mb-6">
-            <h2 class="text-center text-lg font-semibold mb-4 text-gray-300">REGサイドランプ</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                <div class="flex flex-col items-center"><label class="mb-2 font-medium text-blue-400">青</label><div class="flex items-center space-x-1"><button id="regSideBlueDecrement" class="btn p-2 bg-gray-600 rounded-md">-</button><input type="number" id="regSideBlueCountInput" class="w-12 bg-gray-700 text-center rounded-md p-1" value="0" inputmode="numeric"><button id="regSideBlueIncrement" class="btn p-2 bg-blue-600 rounded-md">+</button></div></div>
-                <div class="flex flex-col items-center"><label class="mb-2 font-medium text-yellow-400">黄</label><div class="flex items-center space-x-1"><button id="regSideYellowDecrement" class="btn p-2 bg-gray-600 rounded-md">-</button><input type="number" id="regSideYellowCountInput" class="w-12 bg-gray-700 text-center rounded-md p-1" value="0" inputmode="numeric"><button id="regSideYellowIncrement" class="btn p-2 bg-yellow-500 text-gray-900 rounded-md">+</button></div></div>
-                <div class="flex flex-col items-center"><label class="mb-2 font-medium text-green-400">緑</label><div class="flex items-center space-x-1"><button id="regSideGreenDecrement" class="btn p-2 bg-gray-600 rounded-md">-</button><input type="number" id="regSideGreenCountInput" class="w-12 bg-gray-700 text-center rounded-md p-1" value="0" inputmode="numeric"><button id="regSideGreenIncrement" class="btn p-2 bg-green-600 rounded-md">+</button></div></div>
-                <div class="flex flex-col items-center"><label class="mb-2 font-medium text-red-400">赤</label><div class="flex items-center space-x-1"><button id="regSideRedDecrement" class="btn p-2 bg-gray-600 rounded-md">-</button><input type="number" id="regSideRedCountInput" class="w-12 bg-gray-700 text-center rounded-md p-1" value="0" inputmode="numeric"><button id="regSideRedIncrement" class="btn p-2 bg-red-600 rounded-md">+</button></div></div>
+        <main class="space-y-4">
+            <!-- 機種選択 -->
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                <label for="machine-select" class="block text-sm font-medium text-gray-300 mb-2">機種を選択してください</label>
+                <select id="machine-select" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-pink-500 focus:outline-none">
+                    <option value="star">スターハナハナ</option>
+                    <option value="dragon">ドラゴンハナハナ～閃光～</option>
+                    <option value="king">キングハナハナ</option>
+                    <option value="houou">ハナハナホウオウ～天翔～</option>
+                </select>
             </div>
-            <div class="flex flex-col items-center border-t border-gray-700 pt-4"><label class="mb-2 font-medium rainbow-text">虹 (白)</label><div class="flex items-center space-x-1"><button id="regSideRainbowDecrement" class="btn p-2 bg-gray-600 rounded-md">-</button><input type="number" id="regSideRainbowCountInput" class="w-12 bg-gray-700 text-center rounded-md p-1" value="0" inputmode="numeric"><button id="regSideRainbowIncrement" class="btn p-2 rainbow-btn text-white rounded-md">+</button></div></div>
-            <div class="mt-4 text-center text-sm text-gray-400"><p>奇数示唆: <span id="oddRatio" class="font-bold text-blue-400">0.0%</span> | 偶数示唆: <span id="evenRatio" class="font-bold text-green-400">0.0%</span></p></div>
-        </div>
-        
-        <!-- ボーナス後フェザー -->
-        <div class="bg-gray-800 p-4 rounded-lg mb-6">
-            <h2 class="text-center text-lg font-semibold mb-4 text-gray-300">ボーナス後フェザー (色別)</h2>
-            <div class="space-y-4">
-                <!-- BIG後 -->
-                <div>
-                    <h3 class="text-center text-md font-medium text-gray-400 mb-3">BIG後</h3>
-                    <div class="grid grid-cols-3 gap-y-3 gap-x-2 justify-items-center mb-3">
-                        <div class="flex flex-col items-center"><label class="text-sm text-blue-400">青</label><div class="flex items-center"><button id="bigFeatherBlueDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="bigFeatherBlueInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="bigFeatherBlueIncrement" class="btn p-1 bg-blue-600 rounded-r-md">+</button></div></div>
-                        <div class="flex flex-col items-center"><label class="text-sm text-yellow-400">黄</label><div class="flex items-center"><button id="bigFeatherYellowDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="bigFeatherYellowInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="bigFeatherYellowIncrement" class="btn p-1 bg-yellow-500 text-gray-900 rounded-r-md">+</button></div></div>
-                        <div class="flex flex-col items-center"><label class="text-sm text-green-400">緑</label><div class="flex items-center"><button id="bigFeatherGreenDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="bigFeatherGreenInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="bigFeatherGreenIncrement" class="btn p-1 bg-green-600 rounded-r-md">+</button></div></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-y-3 gap-x-2 justify-items-center w-2/3 mx-auto">
-                        <div class="flex flex-col items-center"><label class="text-sm text-red-400">赤</label><div class="flex items-center"><button id="bigFeatherRedDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="bigFeatherRedInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="bigFeatherRedIncrement" class="btn p-1 bg-red-600 rounded-r-md">+</button></div></div>
-                        <div class="flex flex-col items-center"><label class="text-sm rainbow-text">虹</label><div class="flex items-center"><button id="bigFeatherRainbowDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="bigFeatherRainbowInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="bigFeatherRainbowIncrement" class="btn p-1 rainbow-btn text-white rounded-r-md">+</button></div></div>
-                    </div>
+
+            <!-- 基本情報 -->
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg grid grid-cols-3 gap-4">
+                <div class="text-center">
+                    <label for="total-games" class="block text-sm font-medium text-gray-300">総ゲーム数</label>
+                    <input type="number" id="total-games" class="w-full bg-gray-700 text-center text-2xl font-bold rounded-md p-2 mt-1 border border-gray-600" value="0">
                 </div>
-                <!-- REG後 -->
-                <div class="border-t border-gray-700 pt-4">
-                    <h3 class="text-center text-md font-medium text-gray-400 mb-3">REG後</h3>
-                    <div class="grid grid-cols-3 gap-y-3 gap-x-2 justify-items-center mb-3">
-                        <div class="flex flex-col items-center"><label class="text-sm text-blue-400">青</label><div class="flex items-center"><button id="regFeatherBlueDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="regFeatherBlueInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="regFeatherBlueIncrement" class="btn p-1 bg-blue-600 rounded-r-md">+</button></div></div>
-                        <div class="flex flex-col items-center"><label class="text-sm text-yellow-400">黄</label><div class="flex items-center"><button id="regFeatherYellowDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="regFeatherYellowInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="regFeatherYellowIncrement" class="btn p-1 bg-yellow-500 text-gray-900 rounded-r-md">+</button></div></div>
-                        <div class="flex flex-col items-center"><label class="text-sm text-green-400">緑</label><div class="flex items-center"><button id="regFeatherGreenDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="regFeatherGreenInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="regFeatherGreenIncrement" class="btn p-1 bg-green-600 rounded-r-md">+</button></div></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-y-3 gap-x-2 justify-items-center w-2/3 mx-auto">
-                        <div class="flex flex-col items-center"><label class="text-sm text-red-400">赤</label><div class="flex items-center"><button id="regFeatherRedDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="regFeatherRedInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="regFeatherRedIncrement" class="btn p-1 bg-red-600 rounded-r-md">+</button></div></div>
-                        <div class="flex flex-col items-center"><label class="text-sm rainbow-text">虹</label><div class="flex items-center"><button id="regFeatherRainbowDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="regFeatherRainbowInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="regFeatherRainbowIncrement" class="btn p-1 rainbow-btn text-white rounded-r-md">+</button></div></div>
-                    </div>
+                <div class="text-center">
+                    <label class="block text-sm font-medium text-gray-300">BIG</label>
+                    <input type="number" id="big-count" class="w-full bg-gray-700 text-center text-2xl font-bold rounded-md p-2 mt-1 border border-gray-600" value="0">
+                    <span id="big-prob" class="text-xs text-gray-400">1/---</span>
+                </div>
+                <div class="text-center">
+                    <label class="block text-sm font-medium text-gray-300">REG</label>
+                    <input type="number" id="reg-count" class="w-full bg-gray-700 text-center text-2xl font-bold rounded-md p-2 mt-1 border border-gray-600" value="0">
+                    <span id="reg-prob" class="text-xs text-gray-400">1/---</span>
                 </div>
             </div>
-        </div>
 
-        <!-- 設定推測結果 -->
-        <div class="bg-gray-800 p-4 rounded-lg">
-            <h2 class="text-center text-lg font-semibold mb-4 text-gray-300">設定推測結果</h2>
-            <div id="estimationResult" class="space-y-2"></div>
-        </div>
-        <div class="mt-8 text-center"><button id="resetButton" class="btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg transition-transform transform active:scale-95">リセット</button></div>
+            <!-- 小役カウンター -->
+            <div id="koyaku-counters" class="space-y-4">
+                <!-- ベル -->
+                <div id="bell-counter-container" class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">ベル</span>
+                        <div class="flex items-center gap-3">
+                            <button data-target="bell" class="counter-btn minus bg-yellow-600 hover:bg-yellow-700 rounded-full w-8 h-8 text-xl font-bold">-</button>
+                            <span id="bell-count" class="text-2xl font-bold w-16 text-center">0</span>
+                            <button data-target="bell" class="counter-btn plus bg-yellow-500 hover:bg-yellow-600 rounded-full w-8 h-8 text-xl font-bold">+</button>
+                        </div>
+                        <span id="bell-prob" class="text-sm text-gray-400 w-24 text-right">1/---</span>
+                    </div>
+                    <div id="bell-info" class="text-xs text-yellow-400 mt-2 text-center hidden"></div>
+                </div>
+                <!-- BIG中スイカ -->
+                <div id="big-suika-counter-container" class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">BIG中スイカ</span>
+                        <div class="flex items-center gap-3">
+                            <button data-target="big-suika" class="counter-btn minus bg-red-600 hover:bg-red-700 rounded-full w-8 h-8 text-xl font-bold">-</button>
+                            <span id="big-suika-count" class="text-2xl font-bold w-16 text-center">0</span>
+                            <button data-target="big-suika" class="counter-btn plus bg-red-500 hover:bg-red-600 rounded-full w-8 h-8 text-xl font-bold">+</button>
+                        </div>
+                        <span id="big-suika-prob" class="text-sm text-gray-400 w-24 text-right">1/---</span>
+                    </div>
+                     <div id="big-suika-info" class="text-xs text-yellow-400 mt-2 text-center hidden"></div>
+                </div>
+            </div>
+
+            <!-- REG中サイドランプ -->
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                <h3 class="text-center font-medium mb-3">REG中サイドランプ</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- 青 & 黄 -->
+                    <div class="flex items-center justify-between">
+                        <span class="text-blue-400 font-bold">青</span>
+                        <div class="flex items-center gap-2">
+                            <button data-target="reg-side-blue" class="counter-btn minus bg-gray-600 hover:bg-gray-700 rounded-md w-6 h-6 text-sm">-</button>
+                            <span id="reg-side-blue-count" class="font-bold w-6 text-center">0</span>
+                            <button data-target="reg-side-blue" class="counter-btn plus bg-blue-500 hover:bg-blue-600 rounded-md w-6 h-6 text-sm">+</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-yellow-400 font-bold">黄</span>
+                        <div class="flex items-center gap-2">
+                            <button data-target="reg-side-yellow" class="counter-btn minus bg-gray-600 hover:bg-gray-700 rounded-md w-6 h-6 text-sm">-</button>
+                            <span id="reg-side-yellow-count" class="font-bold w-6 text-center">0</span>
+                            <button data-target="reg-side-yellow" class="counter-btn plus bg-yellow-500 hover:bg-yellow-600 rounded-md w-6 h-6 text-sm">+</button>
+                        </div>
+                    </div>
+                    <!-- 緑 & 赤 -->
+                    <div class="flex items-center justify-between">
+                        <span class="text-green-400 font-bold">緑</span>
+                        <div class="flex items-center gap-2">
+                            <button data-target="reg-side-green" class="counter-btn minus bg-gray-600 hover:bg-gray-700 rounded-md w-6 h-6 text-sm">-</button>
+                            <span id="reg-side-green-count" class="font-bold w-6 text-center">0</span>
+                            <button data-target="reg-side-green" class="counter-btn plus bg-green-500 hover:bg-green-600 rounded-md w-6 h-6 text-sm">+</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-red-400 font-bold">赤</span>
+                        <div class="flex items-center gap-2">
+                            <button data-target="reg-side-red" class="counter-btn minus bg-gray-600 hover:bg-gray-700 rounded-md w-6 h-6 text-sm">-</button>
+                            <span id="reg-side-red-count" class="font-bold w-6 text-center">0</span>
+                            <button data-target="reg-side-red" class="counter-btn plus bg-red-500 hover:bg-red-600 rounded-md w-6 h-6 text-sm">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-3 pt-3 border-t border-gray-700">
+                    <span class="text-xs text-gray-400">奇数示唆: <b id="odd-prob" class="text-blue-300">0.0%</b></span> | 
+                    <span class="text-xs text-gray-400">偶数示唆: <b id="even-prob" class="text-yellow-300">0.0%</b></span>
+                </div>
+                 <div id="reg-side-info" class="text-xs text-yellow-400 mt-2 text-center hidden"></div>
+            </div>
+
+            <!-- ボーナス後ランプ -->
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                <h3 id="end-lamp-title" class="text-center font-medium mb-3">ボーナス後フェザーランプ</h3>
+                <div class="space-y-3">
+                    <!-- BIG後 -->
+                    <div>
+                        <h4 class="text-sm text-gray-400 mb-2">BIG後</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-blue-400">青</span>
+                                <button data-target="end-lamp-big-blue" class="counter-btn minus bg-gray-600 w-5 h-5 text-xs">-</button>
+                                <span id="end-lamp-big-blue-count" class="w-4 text-center">0</span>
+                                <button data-target="end-lamp-big-blue" class="counter-btn plus bg-blue-500 w-5 h-5 text-xs">+</button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-yellow-400">黄</span>
+                                <button data-target="end-lamp-big-yellow" class="counter-btn minus bg-gray-600 w-5 h-5 text-xs">-</button>
+                                <span id="end-lamp-big-yellow-count" class="w-4 text-center">0</span>
+                                <button data-target="end-lamp-big-yellow" class="counter-btn plus bg-yellow-500 w-5 h-5 text-xs">+</button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-400">緑</span>
+                                <button data-target="end-lamp-big-green" class="counter-btn minus bg-gray-600 w-5 h-5 text-xs">-</button>
+                                <span id="end-lamp-big-green-count" class="w-4 text-center">0</span>
+                                <button data-target="end-lamp-big-green" class="counter-btn plus bg-green-500 w-5 h-5 text-xs">+</button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-red-400">赤</span>
+                                <button data-target="end-lamp-big-red" class="counter-btn minus bg-gray-600 w-5 h-5 text-xs">-</button>
+                                <span id="end-lamp-big-red-count" class="w-4 text-center">0</span>
+                                <button data-target="end-lamp-big-red" class="counter-btn plus bg-red-500 w-5 h-5 text-xs">+</button>
+                            </div>
+                            <div class="flex items-center gap-2 col-span-2">
+                                <span class="text-purple-400">虹</span>
+                                <button data-target="end-lamp-big-rainbow" class="counter-btn minus bg-gray-600 w-5 h-5 text-xs">-</button>
+                                <span id="end-lamp-big-rainbow-count" class="w-4 text-center">0</span>
+                                <button data-target="end-lamp-big-rainbow" class="counter-btn plus bg-gradient-to-r from-pink-500 to-yellow-500 w-5 h-5 text-xs">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- REG後 -->
+                    <div>
+                        <h4 class="text-sm text-gray-400 mb-2">REG後</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                             <div class="flex items-center gap-2">
+                                <span class="text-blue-400">青</span>
+                                <button data-target="end-lamp-reg-blue" class="counter-btn minus bg-gray-600 w-5 h-5 text-xs">-</button>
+                                <span id="end-lamp-reg-blue-count" class="w-4 text-center">0</span>
+                                <button data-target="end-lamp-reg-blue" class="counter-btn plus bg-blue-500 w-5 h-5 text-xs">+</button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-yellow-400">黄</span>
+                                <button data-target="end-lamp-reg-yellow" class="counter-btn minus bg-gray-600 w-5 h-5 text-xs">-</button>
+                                <span id="end-lamp-reg-yellow-count" class="w-4 text-center">0</span>
+                                <button data-target="end-lamp-reg-yellow" class="counter-btn plus bg-yellow-500 w-5 h-5 text-xs">+</button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-400">緑</span>
+                                <button data-target="end-lamp-reg-green" class="counter-btn minus bg-gray-600 w-5 h-5 text-xs">-</button>
+                                <span id="end-lamp-reg-green-count" class="w-4 text-center">0</span>
+                                <button data-target="end-lamp-reg-green" class="counter-btn plus bg-green-500 w-5 h-5 text-xs">+</button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-red-400">赤</span>
+                                <button data-target="end-lamp-reg-red" class="counter-btn minus bg-gray-600 w-5 h-5 text-xs">-</button>
+                                <span id="end-lamp-reg-red-count" class="w-4 text-center">0</span>
+                                <button data-target="end-lamp-reg-red" class="counter-btn plus bg-red-500 w-5 h-5 text-xs">+</button>
+                            </div>
+                            <div class="flex items-center gap-2 col-span-2">
+                                <span class="text-purple-400">虹</span>
+                                <button data-target="end-lamp-reg-rainbow" class="counter-btn minus bg-gray-600 w-5 h-5 text-xs">-</button>
+                                <span id="end-lamp-reg-rainbow-count" class="w-4 text-center">0</span>
+                                <button data-target="end-lamp-reg-rainbow" class="counter-btn plus bg-gradient-to-r from-pink-500 to-yellow-500 w-5 h-5 text-xs">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="end-lamp-info" class="text-xs text-yellow-400 mt-3 pt-3 border-t border-gray-700 text-center hidden"></div>
+            </div>
+
+            <!-- 結果表示 -->
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                <h3 class="text-center font-medium mb-4">設定推測結果</h3>
+                <div id="results-container" class="space-y-3">
+                    <!-- 結果がここに動的に生成される -->
+                </div>
+                <div id="confirmed-info" class="mt-4 text-center text-lg font-bold text-green-400"></div>
+            </div>
+
+            <!-- リセットボタン -->
+            <div class="text-center">
+                <button id="reset-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                    入力値をリセット
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                <details>
+                    <summary class="cursor-pointer font-medium text-lg text-pink-300">▼ 推測ロジックと確率計算の解説</summary>
+                    <div class="mt-4 text-sm text-gray-300 space-y-4">
+                        <p>このツールは、入力された実践データと、各機種の公開されている解析値・実践値を比較し、どの設定の可能性が最も高いかを確率的に算出します。</p>
+                        <div>
+                            <h4 class="font-bold text-md mb-1">基本的な考え方（ベイズ推定）</h4>
+                            <p>1. <strong>初期状態:</strong> 最初は、どの設定（1～6）であるかの確率は均等（各16.67%）からスタートします。</p>
+                            <p>2. <strong>データ入力:</strong> ゲーム数、ボーナス回数、小役回数などのデータを入力すると、ツールは「もし設定1だったら、このデータになる確率は何%か？」「もし設定6だったら…」という計算を全設定に対して行います。</p>
+                            <p>3. <strong>確率の更新:</strong> ある設定（例：設定6）の理論値に近いデータが入力されるほど、その設定の確率は上昇し、逆に理論値から離れている設定の確率は下降します。これを入力された全てのデータで繰り返し、最終的な確率分布を算出します。</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-md mb-1">機種別の重要ポイント</h4>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li><strong>スターハナハナ:</strong> ボーナス合算確率、特にREG確率が重要です。小役確率の確定情報がないため、ボーナス出現率を最優先で評価します。</li>
+                                <li><strong>ドラゴンハナハナ～閃光～:</strong> BIG確率が圧倒的に重要です。REG確率の分母が大きいため、REG回数の少なさは低設定の決め手にはなりにくいです。REG中サイドランプの示唆パターンが伝統的な法則と異なる点に注意が必要です。</li>
+                                <li><strong>キングハナハナ:</strong> 全体的にバランスが取れていますが、<strong class="text-yellow-300">REG終了後のフェザーランプ</strong>が非常に強力です。「青で設定2以上確定」といった確定パターンが出現した場合、それ以下の設定の可能性は0%になります。</li>
+                                <li><strong>ハナハナホウオウ～天翔～:</strong> ボーナス終了後のTOPパネル（鳳玉ランプ）の色が重要です。REG後の発生はBIG後より期待度が高くなります。REG中サイドランプのパターンはこちらも伝統的な法則とは異なるため注意が必要です。</li>
+                            </ul>
+                        </div>
+                        <p class="text-xs text-gray-400 pt-2 border-t border-gray-700"><strong>免責事項:</strong> このツールはあくまで確率論に基づいた推測を行うものであり、設定を保証するものではありません。解析情報や実践値にはブレが含まれる可能性があることをご了承ください。</p>
+                    </div>
+                </details>
+            </div>
+        </main>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const elements = {
-                modelSelector: document.getElementById('modelSelector'),
-                totalGames: document.getElementById('totalGames'), bigCount: document.getElementById('bigCount'), regCount: document.getElementById('regCount'),
-                bell: { input: document.getElementById('bellCountInput'), inc: document.getElementById('bellIncrement'), dec: document.getElementById('bellDecrement'), prob: document.getElementById('bellProb') },
-                bigSuika: { input: document.getElementById('bigSuikaCountInput'), inc: document.getElementById('bigSuikaIncrement'), dec: document.getElementById('bigSuikaDecrement'), prob: document.getElementById('bigSuikaProb') },
-                regSide: {}, feather: { big: {}, reg: {} },
-                oddRatio: document.getElementById('oddRatio'), evenRatio: document.getElementById('evenRatio'),
-                estimationResult: document.getElementById('estimationResult'), 
-                resetButton: document.getElementById('resetButton')
-            };
-            const colors = ['blue', 'yellow', 'green', 'red', 'rainbow'];
-            colors.forEach(c => {
-                const C = c.charAt(0).toUpperCase() + c.slice(1);
-                elements.regSide[c] = { input: document.getElementById(`regSide${C}CountInput`), inc: document.getElementById(`regSide${C}Increment`), dec: document.getElementById(`regSide${C}Decrement`) };
-                elements.feather.big[c] = { input: document.getElementById(`bigFeather${C}Input`), inc: document.getElementById(`bigFeather${C}Increment`), dec: document.getElementById(`bigFeather${C}Decrement`) };
-                elements.feather.reg[c] = { input: document.getElementById(`regFeather${C}Input`), inc: document.getElementById(`regFeather${C}Increment`), dec: document.getElementById(`regFeather${C}Decrement`) };
-            });
-
-            let state = {
-                currentModel: 'houou',
-                totalGames: 0, bigCount: 0, regCount: 0, bell: 0, bigSuika: 0,
-                regSide: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 },
-                feather: { big: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 }, reg: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 } }
-            };
-
-            const theoreticalValues = {
-                houou: {
-                    1: { bell: 7.45, bigSuika: 40.96, regOdd: 0.7, feather: { odd: 0.2, even: -0.2, rainbow: 0.5 } },
-                    2: { bell: 7.37, bigSuika: 36.41, regOdd: 0.3, feather: { odd: -0.2, even: 0.2, rainbow: 0.5 } },
-                    3: { bell: 7.28, bigSuika: 40.96, regOdd: 0.7, feather: { odd: 0.3, even: -0.3, rainbow: 0.5 } },
-                    4: { bell: 7.20, bigSuika: 36.41, regOdd: 0.3, feather: { odd: -0.3, even: 0.3, rainbow: 1.0 } },
-                    5: { bell: 7.12, bigSuika: 40.96, regOdd: 0.7, feather: { odd: 0.4, even: -0.4, rainbow: 1.5 } },
-                    6: { bell: 7.05, bigSuika: 32.77, regOdd: 0.3, feather: { odd: -0.5, even: 0.5, rainbow: 2.0 }, regRainbowBonus: true },
+        // --- データ定義 ---
+        // 各機種の解析値・実践値をここに集約
+        const machineData = {
+            star: {
+                name: "スターハナハナ",
+                bonus: [
+                    { setting: 1, big: 1/270, reg: 1/387 },
+                    { setting: 2, big: 1/262, reg: 1/354 },
+                    { setting: 3, big: 1/252, reg: 1/322 },
+                    { setting: 4, big: 1/240, reg: 1/293 },
+                    { setting: 5, big: 1/229, reg: 1/267 },
+                    { setting: 6, big: 1/218, reg: 1/242 },
+                ],
+                koyaku: {
+                    bell: null, // データなし
+                    bigSuika: null, // データなし
                 },
-                king: {
-                    1: { bell: 7.81, bigSuika: 46.8, regOdd: 0.7, feather: { odd: 0.2, even: -0.2, rainbow: 0.5 } },
-                    2: { bell: 7.71, bigSuika: 42.0, regOdd: 0.3, feather: { odd: -0.2, even: 0.2, rainbow: 0.5 } },
-                    3: { bell: 7.62, bigSuika: 46.8, regOdd: 0.7, feather: { odd: 0.3, even: -0.3, rainbow: 0.5 } },
-                    4: { bell: 7.53, bigSuika: 42.0, regOdd: 0.3, feather: { odd: -0.3, even: 0.3, rainbow: 1.0 } },
-                    5: { bell: 7.44, bigSuika: 46.8, regOdd: 0.7, feather: { odd: 0.4, even: -0.4, rainbow: 1.5 } },
-                    6: { bell: 7.35, bigSuika: 36.4, regOdd: 0.3, feather: { odd: -0.5, even: 0.5, rainbow: 2.0 }, regRainbowBonus: true },
+                regSideLamp: { // 伝統パターン
+                    info: "青・緑で奇数、黄・赤で偶数設定の期待度アップ。設定6は均等。",
+                    patterns: [
+                        { setting: 1, blue: 0.35, green: 0.35, yellow: 0.15, red: 0.15 }, // 奇数寄り
+                        { setting: 2, blue: 0.15, green: 0.15, yellow: 0.35, red: 0.35 }, // 偶数寄り
+                        { setting: 3, blue: 0.35, green: 0.35, yellow: 0.15, red: 0.15 }, // 奇数寄り
+                        { setting: 4, blue: 0.15, green: 0.15, yellow: 0.35, red: 0.35 }, // 偶数寄り
+                        { setting: 5, blue: 0.35, green: 0.35, yellow: 0.15, red: 0.15 }, // 奇数寄り
+                        { setting: 6, blue: 0.25, green: 0.25, yellow: 0.25, red: 0.25 }, // 均等
+                    ]
                 },
-                dragon: {
-                    1: { bell: 7.89, bigSuika: 48.2, regOdd: 0.65, feather: { odd: 0.1, even: -0.1, rainbow: 0.2 } },
-                    2: { bell: 7.79, bigSuika: 44.3, regOdd: 0.35, feather: { odd: -0.1, even: 0.1, rainbow: 0.2 } },
-                    3: { bell: 7.69, bigSuika: 48.2, regOdd: 0.65, feather: { odd: 0.1, even: -0.1, rainbow: 0.2 } },
-                    4: { bell: 7.59, bigSuika: 44.3, regOdd: 0.35, feather: { odd: -0.1, even: 0.1, rainbow: 0.5 } },
-                    5: { bell: 7.49, bigSuika: 48.2, regOdd: 0.65, feather: { odd: 0.1, even: -0.1, rainbow: 1.0 } },
-                    6: { bell: 7.39, bigSuika: 39.0, regOdd: 0.35, feather: { odd: -0.1, even: 0.1, rainbow: 1.5 }, regRainbowBonus: true },
-                },
-                star: {
-                    1: { bell: 7.53, bigSuika: 42.0, regOdd: 0.7, feather: { odd: 0.1, even: -0.1, rainbow: 1.0 } },
-                    2: { bell: 7.49, bigSuika: 42.0, regOdd: 0.3, feather: { odd: -0.1, even: 0.1, rainbow: 1.0 } },
-                    3: { bell: 7.44, bigSuika: 42.0, regOdd: 0.7, feather: { odd: 0.1, even: -0.1, rainbow: 1.0 } },
-                    4: { bell: 7.39, bigSuika: 42.0, regOdd: 0.3, feather: { odd: -0.1, even: 0.1, rainbow: 1.0 } },
-                    5: { bell: 7.35, bigSuika: 42.0, regOdd: 0.7, feather: { odd: 0.1, even: -0.1, rainbow: 1.0 } },
-                    6: { bell: 7.30, bigSuika: 34.8, regOdd: 0.3, feather: { odd: -0.1, even: 0.1, rainbow: 2.0 }, regRainbowBonus: true },
+                endLamp: {
+                    name: "フェザーランプ",
+                    info: "REG後の発生は期待度アップ。確定パターンはなし。",
+                    confirmed: null
                 }
-            };
-            
-            const setupListeners = (obj, stateRef) => {
-                for (const key in obj) {
-                    if (obj[key].input) {
-                        ((currentKey) => {
-                            obj[currentKey].inc.addEventListener('click', () => { stateRef[currentKey]++; updateAll(); });
-                            obj[currentKey].dec.addEventListener('click', () => { if (stateRef[currentKey] > 0) stateRef[currentKey]--; updateAll(); });
-                            obj[currentKey].input.addEventListener('change', () => { updateStateFromInput(); updateAll(); });
-                        })(key);
-                    } else {
-                        setupListeners(obj[key], stateRef[key]);
+            },
+            dragon: {
+                name: "ドラゴンハナハナ～閃光～",
+                bonus: [
+                    { setting: 1, big: 1/256, reg: 1/642 },
+                    { setting: 2, big: 1/246, reg: 1/585 },
+                    { setting: 3, big: 1/235, reg: 1/537 },
+                    { setting: 4, big: 1/224, reg: 1/489 },
+                    { setting: 5, big: 1/212, reg: 1/442 },
+                    { setting: 6, big: 1/199, reg: 1/399 },
+                ],
+                koyaku: {
+                    bell: [1/7.7, 1/7.5, 1/7.4, 1/7.3, 1/7.2, 1/7.1], // 実践値から線形補間
+                    bigSuika: null, // スイカ/チェリー比率のため個別確率はなし
+                },
+                regSideLamp: { // 変則パターン (実戦値ベース)
+                    info: "注意: 伝統的な奇数・偶数示唆と異なる可能性があります。実戦値を参考にしています。",
+                    patterns: [
+                        { setting: 1, blue: 0.00, green: 0.00, yellow: 0.60, red: 0.40 },
+                        { setting: 2, blue: 0.11, green: 0.00, yellow: 0.53, red: 0.36 }, // 推定
+                        { setting: 3, blue: 0.22, green: 0.00, yellow: 0.45, red: 0.33 }, // 推定
+                        { setting: 4, blue: 0.33, green: 0.00, yellow: 0.37, red: 0.30 }, // 推定
+                        { setting: 5, blue: 0.44, green: 0.00, yellow: 0.29, red: 0.27 }, // 推定
+                        { setting: 6, blue: 0.555, green: 0.00, yellow: 0.222, red: 0.222 },
+                    ]
+                },
+                endLamp: {
+                    name: "フェザーランプ",
+                    info: "確定パターンはなし。",
+                    confirmed: null
+                }
+            },
+            king: {
+                name: "キングハナハナ",
+                bonus: [
+                    { setting: 1, big: 1/292, reg: 1/489 },
+                    { setting: 2, big: 1/280, reg: 1/452 },
+                    { setting: 3, big: 1/268, reg: 1/420 },
+                    { setting: 4, big: 1/257, reg: 1/390 },
+                    { setting: 5, big: 1/244, reg: 1/360 },
+                    { setting: 6, big: 1/232, reg: 1/332 },
+                ],
+                koyaku: {
+                    bell: [1/7.97, 1/7.79, 1/7.61, 1/7.43, 1/7.25, 1/7.07], // 実践値から線形補間
+                    bigSuika: [1/43.3, 1/41.0, 1/38.7, 1/36.4, 1/34.1, 1/31.8], // 実践値から線形補間
+                },
+                regSideLamp: { // 伝統パターン
+                    info: "青・緑で奇数、黄・赤で偶数設定の期待度アップ。設定6は均等。",
+                    patterns: [
+                        { setting: 1, blue: 0.35, green: 0.35, yellow: 0.15, red: 0.15 },
+                        { setting: 2, blue: 0.15, green: 0.15, yellow: 0.35, red: 0.35 },
+                        { setting: 3, blue: 0.35, green: 0.35, yellow: 0.15, red: 0.15 },
+                        { setting: 4, blue: 0.15, green: 0.15, yellow: 0.35, red: 0.35 },
+                        { setting: 5, blue: 0.35, green: 0.35, yellow: 0.15, red: 0.15 },
+                        { setting: 6, blue: 0.25, green: 0.25, yellow: 0.25, red: 0.25 },
+                    ]
+                },
+                endLamp: {
+                    name: "フェザーランプ",
+                    info: "REG後に特定色で設定2以上などが確定！",
+                    confirmed: {
+                        blue: 2,
+                        yellow: 3,
+                        green: 4,
+                        red: 5,
+                        rainbow: 6
                     }
                 }
-            };
-            
-            elements.modelSelector.addEventListener('change', (e) => { state.currentModel = e.target.value; updateAll(); });
-            ['totalGames', 'bigCount', 'regCount'].forEach(key => { elements[key].addEventListener('change', () => { updateStateFromInput(); updateAll(); }); });
-            setupListeners({ bell: elements.bell, bigSuika: elements.bigSuika }, state);
-            setupListeners(elements.regSide, state.regSide);
-            setupListeners(elements.feather, state.feather);
-            
-            elements.resetButton.addEventListener('click', () => {
-                if (confirm('本当にすべてのデータをリセットしますか？')) {
-                    resetState();
-                    updateAll();
+            },
+            houou: {
+                name: "ハナハナホウオウ～天翔～",
+                bonus: [
+                    { setting: 1, big: 1/297, reg: 1/496 },
+                    { setting: 2, big: 1/284, reg: 1/458 },
+                    { setting: 3, big: 1/273, reg: 1/425 },
+                    { setting: 4, big: 1/262, reg: 1/397 },
+                    { setting: 5, big: 1/249, reg: 1/366 },
+                    { setting: 6, big: 1/236, reg: 1/337 },
+                ],
+                koyaku: {
+                    bell: [1/8.2, 1/8.04, 1/7.88, 1/7.72, 1/7.56, 1/7.4], // 実践値(設定差大)から線形補間
+                    bigSuika: [1/48, 1/44, 1/40, 1/36, 1/32, 1/28], // 目安値から線形補間
+                },
+                regSideLamp: { // 変則パターン (実戦値ベース)
+                    info: "注意: 伝統的な奇数・偶数示唆と異なる可能性があります。実戦値を参考にしています。",
+                    patterns: [ // 設定6で赤・緑に偏る
+                        { setting: 1, blue: 0.25, green: 0.15, yellow: 0.35, red: 0.25 }, // 推定
+                        { setting: 2, blue: 0.20, green: 0.20, yellow: 0.30, red: 0.30 }, // 推定
+                        { setting: 3, blue: 0.15, green: 0.25, yellow: 0.25, red: 0.35 }, // 推定
+                        { setting: 4, blue: 0.10, green: 0.30, yellow: 0.20, red: 0.40 }, // 推定
+                        { setting: 5, blue: 0.05, green: 0.35, yellow: 0.15, red: 0.45 }, // 推定
+                        { setting: 6, blue: 0.00, green: 0.40, yellow: 0.10, red: 0.50 },
+                    ]
+                },
+                endLamp: {
+                    name: "TOPパネル(鳳玉ランプ)",
+                    info: "REG後の発生は期待度アップ。確定パターンはなし。",
+                    confirmed: null
                 }
+            }
+        };
+
+        // --- DOM要素 ---
+        const machineSelect = document.getElementById('machine-select');
+        const totalGamesInput = document.getElementById('total-games');
+        const bigCountInput = document.getElementById('big-count');
+        const regCountInput = document.getElementById('reg-count');
+        const resetButton = document.getElementById('reset-button');
+        const resultsContainer = document.getElementById('results-container');
+        const confirmedInfo = document.getElementById('confirmed-info');
+
+        // --- アプリケーションの状態 ---
+        let state = {
+            machine: 'star',
+            inputs: {
+                totalGames: 0,
+                big: 0,
+                reg: 0,
+                bell: 0,
+                bigSuika: 0,
+                regSide: { blue: 0, yellow: 0, green: 0, red: 0 },
+                endLampBig: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 },
+                endLampReg: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 },
+            }
+        };
+
+        // --- イベントリスナー ---
+        document.addEventListener('DOMContentLoaded', initialize);
+        machineSelect.addEventListener('change', handleMachineChange);
+        resetButton.addEventListener('click', resetAll);
+
+        // --- 初期化 ---
+        function initialize() {
+            setupCounters();
+            setupInputs();
+            updateUIForMachine();
+            calculateAndDisplay();
+        }
+
+        function setupCounters() {
+            document.querySelectorAll('.counter-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const target = e.target.dataset.target;
+                    const isPlus = e.target.classList.contains('plus');
+                    updateCounter(target, isPlus);
+                });
             });
+        }
 
-            function updateStateFromInput() {
-                state.totalGames = parseInt(elements.totalGames.value) || 0;
-                state.bigCount = parseInt(elements.bigCount.value) || 0;
-                state.regCount = parseInt(elements.regCount.value) || 0;
-                state.bell = parseInt(elements.bell.input.value) || 0;
-                state.bigSuika = parseInt(elements.bigSuika.input.value) || 0;
-                colors.forEach(c => {
-                    state.regSide[c] = parseInt(elements.regSide[c].input.value) || 0;
-                    state.feather.big[c] = parseInt(elements.feather.big[c].input.value) || 0;
-                    state.feather.reg[c] = parseInt(elements.feather.reg[c].input.value) || 0;
+        function setupInputs() {
+            [totalGamesInput, bigCountInput, regCountInput].forEach(input => {
+                input.addEventListener('input', () => {
+                    state.inputs.totalGames = parseInt(totalGamesInput.value) || 0;
+                    state.inputs.big = parseInt(bigCountInput.value) || 0;
+                    state.inputs.reg = parseInt(regCountInput.value) || 0;
+                    calculateAndDisplay();
                 });
+            });
+        }
+
+        // --- 状態更新ロジック ---
+        function handleMachineChange() {
+            state.machine = machineSelect.value;
+            resetAll();
+        }
+
+        function updateCounter(target, isPlus) {
+            const amount = isPlus ? 1 : -1;
+            const parts = target.split('-');
+            
+            if (parts.length === 1) { // bell, big-suika
+                state.inputs[parts[0]] = Math.max(0, state.inputs[parts[0]] + amount);
+            } else if (parts[1] === 'side') { // reg-side-color
+                state.inputs.regSide[parts[2]] = Math.max(0, state.inputs.regSide[parts[2]] + amount);
+            } else if (parts[1] === 'lamp') { // end-lamp-big/reg-color
+                const type = parts[2] === 'big' ? 'endLampBig' : 'endLampReg';
+                state.inputs[type][parts[3]] = Math.max(0, state.inputs[type][parts[3]] + amount);
+            }
+            
+            updateDisplay();
+            calculateAndDisplay();
+        }
+
+        function resetAll() {
+            state.inputs = {
+                totalGames: 0, big: 0, reg: 0, bell: 0, bigSuika: 0,
+                regSide: { blue: 0, yellow: 0, green: 0, red: 0 },
+                endLampBig: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 },
+                endLampReg: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 },
+            };
+            updateUIForMachine();
+            updateDisplay();
+            calculateAndDisplay();
+        }
+
+        // --- UI更新 ---
+        function updateUIForMachine() {
+            const data = machineData[state.machine];
+            
+            // 小役カウンターの表示/非表示と情報テキスト
+            const bellContainer = document.getElementById('bell-counter-container');
+            const bellInfo = document.getElementById('bell-info');
+            if (data.koyaku.bell) {
+                bellContainer.style.display = 'block';
+                bellInfo.classList.add('hidden');
+            } else {
+                bellContainer.style.display = 'block'; // 表示はする
+                bellInfo.textContent = "この機種のベル確率の確定情報はありません。";
+                bellInfo.classList.remove('hidden');
             }
 
-            function resetState() {
-                const model = state.currentModel;
-                state = {
-                    currentModel: model, totalGames: 0, bigCount: 0, regCount: 0, bell: 0, bigSuika: 0,
-                    regSide: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 },
-                    feather: { big: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 }, reg: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 } }
-                };
+            const bigSuikaContainer = document.getElementById('big-suika-counter-container');
+            const bigSuikaInfo = document.getElementById('big-suika-info');
+            if (data.koyaku.bigSuika) {
+                bigSuikaContainer.style.display = 'block';
+                bigSuikaInfo.classList.add('hidden');
+            } else {
+                bigSuikaContainer.style.display = 'block';
+                bigSuikaInfo.textContent = "この機種のBIG中スイカ確率の確定情報はありません。";
+                bigSuikaInfo.classList.remove('hidden');
             }
 
-            function updateAll() { updateDisplay(); calculateAndDisplayProbabilities(); estimateSettings(); }
+            // REGサイドランプ情報
+            const regSideInfo = document.getElementById('reg-side-info');
+            regSideInfo.textContent = data.regSideLamp.info;
+            regSideInfo.classList.remove('hidden');
 
-            function updateDisplay() {
-                elements.totalGames.value = state.totalGames;
-                elements.bigCount.value = state.bigCount;
-                elements.regCount.value = state.regCount;
-                elements.bell.input.value = state.bell;
-                elements.bigSuika.input.value = state.bigSuika;
-                colors.forEach(c => {
-                    elements.regSide[c].input.value = state.regSide[c];
-                    elements.feather.big[c].input.value = state.feather.big[c];
-                    elements.feather.reg[c].input.value = state.feather.reg[c];
-                });
+            // ボーナス後ランプ
+            document.getElementById('end-lamp-title').textContent = `ボーナス後${data.endLamp.name}`;
+            const endLampInfo = document.getElementById('end-lamp-info');
+            endLampInfo.textContent = data.endLamp.info;
+            endLampInfo.classList.remove('hidden');
+        }
+
+        function updateDisplay() {
+            // 基本情報
+            totalGamesInput.value = state.inputs.totalGames;
+            bigCountInput.value = state.inputs.big;
+            regCountInput.value = state.inputs.reg;
+            document.getElementById('big-prob').textContent = state.inputs.big > 0 ? `1/${(state.inputs.totalGames / state.inputs.big).toFixed(1)}` : '1/---';
+            document.getElementById('reg-prob').textContent = state.inputs.reg > 0 ? `1/${(state.inputs.totalGames / state.inputs.reg).toFixed(1)}` : '1/---';
+            
+            // 小役
+            document.getElementById('bell-count').textContent = state.inputs.bell;
+            document.getElementById('bell-prob').textContent = state.inputs.bell > 0 ? `1/${(state.inputs.totalGames / state.inputs.bell).toFixed(2)}` : '1/---';
+            document.getElementById('big-suika-count').textContent = state.inputs.bigSuika;
+            const bigGames = state.inputs.big * 20; // BIG1回を約20Gと仮定
+            document.getElementById('big-suika-prob').textContent = state.inputs.bigSuika > 0 && bigGames > 0 ? `1/${(bigGames / state.inputs.bigSuika).toFixed(1)}` : '1/---';
+
+            // REGサイドランプ
+            let totalSideLamps = 0;
+            for (const color in state.inputs.regSide) {
+                document.getElementById(`reg-side-${color}-count`).textContent = state.inputs.regSide[color];
+                totalSideLamps += state.inputs.regSide[color];
             }
+            const oddCount = state.inputs.regSide.blue + state.inputs.regSide.green;
+            const evenCount = state.inputs.regSide.yellow + state.inputs.regSide.red;
+            document.getElementById('odd-prob').textContent = totalSideLamps > 0 ? `${(oddCount / totalSideLamps * 100).toFixed(1)}%` : '0.0%';
+            document.getElementById('even-prob').textContent = totalSideLamps > 0 ? `${(evenCount / totalSideLamps * 100).toFixed(1)}%` : '0.0%';
 
-            function calculateAndDisplayProbabilities() {
-                elements.bell.prob.textContent = state.bell > 0 ? (state.totalGames / state.bell).toFixed(2) : '---';
-                const bigTotalGames = state.bigCount * 24;
-                elements.bigSuika.prob.textContent = state.bigSuika > 0 && bigTotalGames > 0 ? (bigTotalGames / state.bigSuika).toFixed(2) : '---';
-                
-                const totalFlashes = state.regSide.blue + state.regSide.yellow + state.regSide.green + state.regSide.red;
-                if (totalFlashes > 0) {
-                    elements.oddRatio.textContent = (((state.regSide.blue + state.regSide.yellow) / totalFlashes) * 100).toFixed(1) + '%';
-                    elements.evenRatio.textContent = (((state.regSide.green + state.regSide.red) / totalFlashes) * 100).toFixed(1) + '%';
-                } else {
-                    elements.oddRatio.textContent = '0.0%';
-                    elements.evenRatio.textContent = '0.0%';
+            // ボーナス後ランプ
+            for (const type of ['Big', 'Reg']) {
+                for (const color in state.inputs[`endLamp${type}`]) {
+                    document.getElementById(`end-lamp-${type.toLowerCase()}-${color}-count`).textContent = state.inputs[`endLamp${type}`][color];
+                }
+            }
+        }
+
+        // --- 計算ロジック ---
+        // 非常に大きな階乗計算を避けるため、対数尤度を使用
+        function logFactorial(n) {
+            let sum = 0;
+            for (let i = 1; i <= n; i++) {
+                sum += Math.log(i);
+            }
+            return sum;
+        }
+
+        function logBinomialProb(k, n, p) {
+            if (p <= 0 || p >= 1 || k < 0 || n < k) return -Infinity;
+            // log(nCk) + k*log(p) + (n-k)*log(1-p)
+            const logNck = logFactorial(n) - logFactorial(k) - logFactorial(n - k);
+            return logNck + k * Math.log(p) + (n - k) * Math.log(1 - p);
+        }
+
+        function calculateAndDisplay() {
+            const data = machineData[state.machine];
+            let logLikelihoods = new Array(6).fill(0);
+
+            const { totalGames, big, reg, bell, bigSuika, regSide } = state.inputs;
+
+            // 1. ボーナス確率
+            if (totalGames > 0) {
+                for (let i = 0; i < 6; i++) {
+                    logLikelihoods[i] += logBinomialProb(big, totalGames, data.bonus[i].big);
+                    logLikelihoods[i] += logBinomialProb(reg, totalGames, data.bonus[i].reg);
                 }
             }
 
-            function estimateSettings() {
-                if (state.totalGames < 100) {
-                    elements.estimationResult.innerHTML = '<p class="text-center text-gray-500">ゲーム数が不足しています。</p>';
-                    return;
+            // 2. ベル確率
+            if (totalGames > 0 && bell > 0 && data.koyaku.bell) {
+                for (let i = 0; i < 6; i++) {
+                    logLikelihoods[i] += logBinomialProb(bell, totalGames, data.koyaku.bell[i]);
                 }
-
-                const currentModelValues = theoreticalValues[state.currentModel];
-                
-                if (state.feather.reg.rainbow > 0 && currentModelValues[6].regRainbowBonus) {
-                    const possibilities = { 1: 0.5, 2: 0.5, 3: 1.0, 4: 1.0, 5: 2.0, 6: 95.0 };
-                    displayEstimationResult(possibilities);
-                    return;
-                }
-
-                const scores = {};
-                for (let i = 1; i <= 6; i++) {
-                    const setting = i.toString();
-                    const theory = currentModelValues[setting];
-                    let score = 0;
-
-                    if (state.bell > 0) { score += Math.abs((state.totalGames / state.bell) - theory.bell) * 2; }
-                    const bigTotalGames = state.bigCount * 24;
-                    if (state.bigSuika > 0 && bigTotalGames > 0) { score += Math.abs((bigTotalGames / state.bigSuika) - theory.bigSuika) * 5; }
-                    
-                    const totalFlashes = state.regSide.blue + state.regSide.yellow + state.regSide.green + state.regSide.red;
-                    if (totalFlashes > 0) { score += Math.abs(((state.regSide.blue + state.regSide.yellow) / totalFlashes) - theory.regOdd) * 4; }
-                    
-                    if (theory.feather) {
-                        let featherScore = 0;
-                        const allFeathersBig = state.feather.big;
-                        const allFeathersReg = state.feather.reg;
-                        featherScore += (allFeathersBig.blue + allFeathersBig.yellow + allFeathersReg.blue + allFeathersReg.yellow) * theory.feather.odd;
-                        featherScore += (allFeathersBig.green + allFeathersBig.red + allFeathersReg.green + allFeathersReg.red) * theory.feather.even;
-                        featherScore += (allFeathersBig.rainbow + allFeathersReg.rainbow) * theory.feather.rainbow;
-                        score -= featherScore * 3;
-                    }
-                    
-                    scores[setting] = Math.max(0, score);
-                }
-                
-                let invertedScoreSum = 0;
-                for (let i = 1; i <= 6; i++) { scores[i] = 1 / (scores[i] + 0.001); invertedScoreSum += scores[i]; }
-                const possibilities = {};
-                for (let i = 1; i <= 6; i++) { possibilities[i] = (scores[i] / invertedScoreSum) * 100; }
-
-                displayEstimationResult(possibilities);
             }
 
-            function displayEstimationResult(possibilities) {
-                let html = '';
-                const sorted = Object.keys(possibilities).sort((a, b) => possibilities[b] - possibilities[a]);
-                sorted.forEach(s => {
-                    const p = possibilities[s];
-                    const isBest = s === sorted[0];
-                    html += `<div class="flex items-center space-x-3"><span class="w-12 text-lg ${isBest ? 'text-red-400 font-bold' : 'text-gray-300'}">設定 ${s}</span><div class="w-full bg-gray-700 rounded-full h-6"><div class="${isBest ? 'bg-red-500' : 'bg-gray-600'} h-6 rounded-full text-center text-white text-sm flex items-center justify-center" style="width: ${p.toFixed(1)}%;">${p > 5 ? p.toFixed(1) + '%' : ''}</div></div></div>`;
-                });
-                elements.estimationResult.innerHTML = html;
+            // 3. BIG中スイカ確率
+            const bigGames = big * 20; // BIG1回=約20G
+            if (bigGames > 0 && bigSuika > 0 && data.koyaku.bigSuika) {
+                for (let i = 0; i < 6; i++) {
+                    logLikelihoods[i] += logBinomialProb(bigSuika, bigGames, data.koyaku.bigSuika[i]);
+                }
             }
 
-            updateAll();
-        });
+            // 4. REG中サイドランプ
+            const totalSideLamps = Object.values(regSide).reduce((a, b) => a + b, 0);
+            if (totalSideLamps > 0) {
+                for (let i = 0; i < 6; i++) {
+                    const pattern = data.regSideLamp.patterns[i];
+                    let lampLikelihood = 0;
+                    lampLikelihood += regSide.blue * Math.log(pattern.blue || 1e-9);
+                    lampLikelihood += regSide.green * Math.log(pattern.green || 1e-9);
+                    lampLikelihood += regSide.yellow * Math.log(pattern.yellow || 1e-9);
+                    lampLikelihood += regSide.red * Math.log(pattern.red || 1e-9);
+                    logLikelihoods[i] += lampLikelihood;
+                }
+            }
+
+            // 5. 確定演出のフィルタリング
+            let confirmedSetting = 0;
+            if (data.endLamp.confirmed) {
+                const regLamps = state.inputs.endLampReg;
+                if (regLamps.rainbow > 0) confirmedSetting = Math.max(confirmedSetting, data.endLamp.confirmed.rainbow);
+                if (regLamps.red > 0) confirmedSetting = Math.max(confirmedSetting, data.endLamp.confirmed.red);
+                if (regLamps.green > 0) confirmedSetting = Math.max(confirmedSetting, data.endLamp.confirmed.green);
+                if (regLamps.yellow > 0) confirmedSetting = Math.max(confirmedSetting, data.endLamp.confirmed.yellow);
+                if (regLamps.blue > 0) confirmedSetting = Math.max(confirmedSetting, data.endLamp.confirmed.blue);
+            }
+
+            if (confirmedSetting > 0) {
+                for (let i = 0; i < confirmedSetting - 1; i++) {
+                    logLikelihoods[i] = -Infinity; // 可能性を0にする
+                }
+                confirmedInfo.textContent = `設定${confirmedSetting}以上 確定！`;
+            } else {
+                confirmedInfo.textContent = '';
+            }
+            
+            // 6. 虹ランプは高設定期待度大幅アップ
+            const rainbowCount = state.inputs.endLampBig.rainbow + state.inputs.endLampReg.rainbow;
+            if (rainbowCount > 0) {
+                 logLikelihoods[0] -= 100 * rainbowCount; // 低設定の尤度を大幅に下げる
+                 logLikelihoods[1] -= 80 * rainbowCount;
+                 logLikelihoods[2] -= 60 * rainbowCount;
+                 logLikelihoods[3] -= 40 * rainbowCount;
+                 logLikelihoods[4] += 50 * rainbowCount;
+                 logLikelihoods[5] += 100 * rainbowCount; // 高設定の尤度を大幅に上げる
+            }
+
+
+            // 7. 対数尤度から確率に変換
+            const maxLog = Math.max(...logLikelihoods.filter(l => isFinite(l)));
+            if (!isFinite(maxLog)) { // 全て-Infinityの場合
+                renderResults(new Array(6).fill(1/6));
+                return;
+            }
+            const probs = logLikelihoods.map(l => Math.exp(l - maxLog));
+            const totalProb = probs.reduce((a, b) => a + b, 0);
+            const finalProbs = probs.map(p => totalProb > 0 ? p / totalProb : 1/6);
+
+            renderResults(finalProbs);
+        }
+
+        // --- 結果描画 ---
+        function renderResults(probs) {
+            resultsContainer.innerHTML = '';
+            const colors = ['bg-blue-600', 'bg-cyan-600', 'bg-green-600', 'bg-yellow-500', 'bg-orange-500', 'bg-red-600'];
+            const textColors = ['text-blue-200', 'text-cyan-200', 'text-green-200', 'text-yellow-100', 'text-orange-100', 'text-red-200'];
+            
+            probs.forEach((prob, i) => {
+                const percentage = (prob * 100).toFixed(2);
+                const resultEl = document.createElement('div');
+                resultEl.className = 'flex items-center space-x-3';
+                resultEl.innerHTML = `
+                    <span class="font-bold w-12 ${textColors[i]}">設定${i + 1}</span>
+                    <div class="w-full bg-gray-700 rounded-full h-6">
+                        <div class="result-bar-inner ${colors[i]} h-6 rounded-full flex items-center justify-end pr-2" style="width: ${percentage}%">
+                            <span class="text-xs font-medium text-white">${percentage}%</span>
+                        </div>
+                    </div>
+                `;
+                resultsContainer.appendChild(resultEl);
+            });
+        }
+
     </script>
 </body>
 </html>
