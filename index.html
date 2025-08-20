@@ -3,704 +3,527 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HANAHANA設定推測ツール</title>
+    <title>ハナハナ設定推測カウンター</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827; /* bg-gray-900 */
-            color: #d1d5db; /* text-gray-300 */
-        }
-        .card {
-            background-color: #1f2937; /* bg-gray-800 */
-            border: 1px solid #374151; /* border-gray-700 */
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         .counter-btn {
-            transition: all 0.2s;
+            transition: all 0.1s ease-in-out;
         }
         .counter-btn:active {
-            transform: scale(0.9);
+            transform: scale(0.95);
         }
         .result-bar-inner {
-            transition: width 0.5s ease-in-out;
+            transition: width 0.3s ease-in-out;
         }
-        /* スクロールバーのスタイル */
-        ::-webkit-scrollbar {
-            width: 8px;
+        .hibiscus-gradient {
+            background-image: linear-gradient(to right, #f87171, #fb923c, #facc15);
         }
-        ::-webkit-scrollbar-track {
-            background: #1f2937; /* bg-gray-800 */
+        .hibiscus-text {
+            background: -webkit-linear-gradient(left, #ef4444, #f97316, #eab308);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #4b5563; /* bg-gray-600 */
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6b7280; /* bg-gray-500 */
-        }
-        /* 数字入力フィールドのデフォルトスタイルを消す */
-        .number-input {
-            background: transparent;
-            border: none;
-            text-align: center;
-            -moz-appearance: textfield;
-            width: 100%;
-        }
-        .number-input:focus {
-            outline: none;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-        }
-        .number-input::-webkit-outer-spin-button,
-        .number-input::-webkit-inner-spin-button {
+        /* Hide number input arrows */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-gray-900 text-white min-h-screen p-4">
 
-    <div class="container mx-auto p-4 max-w-2xl">
-        <header class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-pink-400 flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flower-2"><path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m4 0a3 3 0 1 1-3 3m3-3h-1m-3 4v-1m0 1a3 3 0 1 0 3-3m-3 3h1m-1-4a3 3 0 1 1-3-3m3 3v-1"/><path d="M6 15.2c2.8 2.8 8.4 2.8 11.2 0"/></svg>
-                ハナハナ設定推測ツール
-            </h1>
+    <div class="max-w-2xl mx-auto text-center">
+        <!-- ヘッダー -->
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold hibiscus-text">ハナハナ設定推測</h1>
+            <p class="text-gray-400 mt-1">現行4機種対応</p>
         </header>
 
-        <main class="space-y-4">
-            <!-- 機種選択 -->
-            <div class="card p-4 rounded-lg shadow-lg">
-                <label for="machine-select" class="block text-sm font-medium text-gray-400 mb-2">機種を選択</label>
-                <select id="machine-select" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-pink-500 focus:outline-none">
-                    <option value="star">スターハナハナ</option>
-                    <option value="dragon">ドラゴンハナハナ～閃光～</option>
-                    <option value="king">キングハナハナ</option>
-                    <option value="houou">ハナハナホウオウ～天翔～</option>
-                </select>
-            </div>
+        <main class="space-y-6">
+            <!-- 入力パネル -->
+            <section class="bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-lg">
+                <!-- 機種選択 -->
+                <div class="mb-6">
+                    <label for="machine-select" class="block text-base font-semibold mb-2 text-gray-300">機種選択</label>
+                    <select id="machine-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="star-hanahana">スターハナハナ</option>
+                        <option value="dragon-hanahana">ドラゴンハナハナ～閃光～</option>
+                        <option value="king-hanahana">キングハナハナ</option>
+                        <option value="hanahana-houou">ハナハナホウオウ～天翔～</option>
+                    </select>
+                </div>
 
-            <!-- 基本情報 -->
-            <div class="card p-4 rounded-lg shadow-lg grid grid-cols-3 gap-4">
-                <div class="text-center">
-                    <label for="total-games" class="block text-sm font-medium text-gray-400">総ゲーム数</label>
-                    <input type="number" id="total-games" class="number-input text-2xl font-bold p-1 mt-1" value="0">
-                </div>
-                <div class="text-center">
-                    <label for="big-count" class="block text-sm font-medium text-gray-400">BIG</label>
-                    <input type="number" id="big-count" class="number-input text-2xl font-bold p-1 mt-1" value="0">
-                    <span id="big-prob" class="text-xs text-gray-500">1/---</span>
-                </div>
-                <div class="text-center">
-                    <label for="reg-count" class="block text-sm font-medium text-gray-400">REG</label>
-                    <input type="number" id="reg-count" class="number-input text-2xl font-bold p-1 mt-1" value="0">
-                    <span id="reg-prob" class="text-xs text-gray-500">1/---</span>
-                </div>
-            </div>
-
-            <!-- 小役カウンター -->
-            <div class="grid md:grid-cols-2 gap-4">
-                <!-- ベル -->
-                <div id="bell-counter-container" class="card p-4 rounded-lg shadow-lg">
-                    <div class="flex justify-between items-center">
-                        <span class="font-medium">ベル</span>
-                        <span id="bell-prob" class="text-sm text-gray-500">1/---</span>
-                    </div>
-                    <div class="flex items-center gap-3 mt-2">
-                        <button data-target="bell" class="counter-btn minus bg-yellow-600 hover:bg-yellow-700 rounded-full w-10 h-10 text-2xl font-bold flex-shrink-0">-</button>
-                        <input type="number" id="bell-count" value="0" class="number-input text-3xl font-bold">
-                        <button data-target="bell" class="counter-btn plus bg-yellow-500 hover:bg-yellow-600 rounded-full w-10 h-10 text-2xl font-bold flex-shrink-0">+</button>
-                    </div>
-                    <div id="bell-info" class="text-xs text-yellow-400 mt-2 text-center hidden"></div>
-                </div>
-                <!-- BIG中スイカ -->
-                <div id="big-suika-counter-container" class="card p-4 rounded-lg shadow-lg">
-                    <div class="flex justify-between items-center">
-                        <span class="font-medium">BIG中スイカ</span>
-                        <span id="big-suika-prob" class="text-sm text-gray-500">1/---</span>
-                    </div>
-                    <div class="flex items-center gap-3 mt-2">
-                        <button data-target="big-suika" class="counter-btn minus bg-red-600 hover:bg-red-700 rounded-full w-10 h-10 text-2xl font-bold flex-shrink-0">-</button>
-                        <input type="number" id="big-suika-count" value="0" class="number-input text-3xl font-bold">
-                        <button data-target="big-suika" class="counter-btn plus bg-red-500 hover:bg-red-600 rounded-full w-10 h-10 text-2xl font-bold flex-shrink-0">+</button>
-                    </div>
-                     <div id="big-suika-info" class="text-xs text-yellow-400 mt-2 text-center hidden"></div>
-                </div>
-            </div>
-
-            <!-- REG中サイドランプ -->
-            <div class="card p-4 rounded-lg shadow-lg">
-                <h3 class="text-center font-medium mb-3">REG中サイドランプ</h3>
-                <div class="grid grid-cols-2 gap-x-6 gap-y-4">
-                    <!-- 青 & 黄 -->
-                    <div class="flex items-center justify-between">
-                        <span class="text-blue-400 font-bold">青</span>
-                        <div class="flex items-center gap-2">
-                            <button data-target="reg-side-blue" class="counter-btn minus bg-gray-600 hover:bg-gray-700 rounded-md w-7 h-7 text-lg">-</button>
-                            <input type="number" id="reg-side-blue-count" value="0" class="number-input font-bold w-10 text-lg">
-                            <button data-target="reg-side-blue" class="counter-btn plus bg-blue-500 hover:bg-blue-600 rounded-md w-7 h-7 text-lg">+</button>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-yellow-400 font-bold">黄</span>
-                        <div class="flex items-center gap-2">
-                            <button data-target="reg-side-yellow" class="counter-btn minus bg-gray-600 hover:bg-gray-700 rounded-md w-7 h-7 text-lg">-</button>
-                            <input type="number" id="reg-side-yellow-count" value="0" class="number-input font-bold w-10 text-lg">
-                            <button data-target="reg-side-yellow" class="counter-btn plus bg-yellow-500 hover:bg-yellow-600 rounded-md w-7 h-7 text-lg">+</button>
-                        </div>
-                    </div>
-                    <!-- 緑 & 赤 -->
-                    <div class="flex items-center justify-between">
-                        <span class="text-green-400 font-bold">緑</span>
-                        <div class="flex items-center gap-2">
-                            <button data-target="reg-side-green" class="counter-btn minus bg-gray-600 hover:bg-gray-700 rounded-md w-7 h-7 text-lg">-</button>
-                            <input type="number" id="reg-side-green-count" value="0" class="number-input font-bold w-10 text-lg">
-                            <button data-target="reg-side-green" class="counter-btn plus bg-green-500 hover:bg-green-600 rounded-md w-7 h-7 text-lg">+</button>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-red-400 font-bold">赤</span>
-                        <div class="flex items-center gap-2">
-                            <button data-target="reg-side-red" class="counter-btn minus bg-gray-600 hover:bg-gray-700 rounded-md w-7 h-7 text-lg">-</button>
-                            <input type="number" id="reg-side-red-count" value="0" class="number-input font-bold w-10 text-lg">
-                            <button data-target="reg-side-red" class="counter-btn plus bg-red-500 hover:bg-red-600 rounded-md w-7 h-7 text-lg">+</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-center mt-4 pt-3 border-t border-gray-700">
-                    <span class="text-xs text-gray-400">奇数示唆: <b id="odd-prob" class="text-blue-300">0.0%</b></span> | 
-                    <span class="text-xs text-gray-400">偶数示唆: <b id="even-prob" class="text-yellow-300">0.0%</b></span>
-                </div>
-                 <div id="reg-side-info" class="text-xs text-yellow-400 mt-2 text-center hidden"></div>
-            </div>
-
-            <!-- ボーナス後ランプ -->
-            <div class="card p-4 rounded-lg shadow-lg">
-                <h3 id="end-lamp-title" class="text-center font-medium mb-4">ボーナス後フェザーランプ</h3>
-                <div class="grid md:grid-cols-2 gap-6">
-                    <!-- BIG後 -->
+                <!-- 基本情報カウンター -->
+                <div class="grid grid-cols-3 gap-3 mb-6">
                     <div>
-                        <h4 class="text-sm text-gray-400 mb-3 text-center md:text-left">BIG後</h4>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="flex items-center gap-2">
-                                <span class="text-blue-400 w-4">青</span>
-                                <button data-target="end-lamp-big-blue" class="counter-btn minus bg-gray-600 w-6 h-6 text-sm rounded">-</button>
-                                <input type="number" id="end-lamp-big-blue-count" value="0" class="number-input w-8">
-                                <button data-target="end-lamp-big-blue" class="counter-btn plus bg-blue-500 w-6 h-6 text-sm rounded">+</button>
-                            </div>
-                             <div class="flex items-center gap-2">
-                                <span class="text-yellow-400 w-4">黄</span>
-                                <button data-target="end-lamp-big-yellow" class="counter-btn minus bg-gray-600 w-6 h-6 text-sm rounded">-</button>
-                                <input type="number" id="end-lamp-big-yellow-count" value="0" class="number-input w-8">
-                                <button data-target="end-lamp-big-yellow" class="counter-btn plus bg-yellow-500 w-6 h-6 text-sm rounded">+</button>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-green-400 w-4">緑</span>
-                                <button data-target="end-lamp-big-green" class="counter-btn minus bg-gray-600 w-6 h-6 text-sm rounded">-</button>
-                                <input type="number" id="end-lamp-big-green-count" value="0" class="number-input w-8">
-                                <button data-target="end-lamp-big-green" class="counter-btn plus bg-green-500 w-6 h-6 text-sm rounded">+</button>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-red-400 w-4">赤</span>
-                                <button data-target="end-lamp-big-red" class="counter-btn minus bg-gray-600 w-6 h-6 text-sm rounded">-</button>
-                                <input type="number" id="end-lamp-big-red-count" value="0" class="number-input w-8">
-                                <button data-target="end-lamp-big-red" class="counter-btn plus bg-red-500 w-6 h-6 text-sm rounded">+</button>
-                            </div>
-                            <div class="flex items-center gap-2 col-span-2">
-                                <span class="text-purple-400 w-4">虹</span>
-                                <button data-target="end-lamp-big-rainbow" class="counter-btn minus bg-gray-600 w-6 h-6 text-sm rounded">-</button>
-                                <input type="number" id="end-lamp-big-rainbow-count" value="0" class="number-input w-8">
-                                <button data-target="end-lamp-big-rainbow" class="counter-btn plus bg-gradient-to-r from-pink-500 to-yellow-500 w-6 h-6 text-sm rounded">+</button>
-                            </div>
-                        </div>
+                        <label for="games" class="block text-sm font-medium text-gray-400 mb-1">総G数</label>
+                        <input type="number" id="games" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-center text-lg font-semibold" placeholder="0" inputmode="numeric">
                     </div>
-                    <!-- REG後 -->
                     <div>
-                        <h4 class="text-sm text-gray-400 mb-3 text-center md:text-left">REG後</h4>
-                        <div class="grid grid-cols-2 gap-3">
-                             <div class="flex items-center gap-2">
-                                <span class="text-blue-400 w-4">青</span>
-                                <button data-target="end-lamp-reg-blue" class="counter-btn minus bg-gray-600 w-6 h-6 text-sm rounded">-</button>
-                                <input type="number" id="end-lamp-reg-blue-count" value="0" class="number-input w-8">
-                                <button data-target="end-lamp-reg-blue" class="counter-btn plus bg-blue-500 w-6 h-6 text-sm rounded">+</button>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-yellow-400 w-4">黄</span>
-                                <button data-target="end-lamp-reg-yellow" class="counter-btn minus bg-gray-600 w-6 h-6 text-sm rounded">-</button>
-                                <input type="number" id="end-lamp-reg-yellow-count" value="0" class="number-input w-8">
-                                <button data-target="end-lamp-reg-yellow" class="counter-btn plus bg-yellow-500 w-6 h-6 text-sm rounded">+</button>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-green-400 w-4">緑</span>
-                                <button data-target="end-lamp-reg-green" class="counter-btn minus bg-gray-600 w-6 h-6 text-sm rounded">-</button>
-                                <input type="number" id="end-lamp-reg-green-count" value="0" class="number-input w-8">
-                                <button data-target="end-lamp-reg-green" class="counter-btn plus bg-green-500 w-6 h-6 text-sm rounded">+</button>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-red-400 w-4">赤</span>
-                                <button data-target="end-lamp-reg-red" class="counter-btn minus bg-gray-600 w-6 h-6 text-sm rounded">-</button>
-                                <input type="number" id="end-lamp-reg-red-count" value="0" class="number-input w-8">
-                                <button data-target="end-lamp-reg-red" class="counter-btn plus bg-red-500 w-6 h-6 text-sm rounded">+</button>
-                            </div>
-                            <div class="flex items-center gap-2 col-span-2">
-                                <span class="text-purple-400 w-4">虹</span>
-                                <button data-target="end-lamp-reg-rainbow" class="counter-btn minus bg-gray-600 w-6 h-6 text-sm rounded">-</button>
-                                <input type="number" id="end-lamp-reg-rainbow-count" value="0" class="number-input w-8">
-                                <button data-target="end-lamp-reg-rainbow" class="counter-btn plus bg-gradient-to-r from-pink-500 to-yellow-500 w-6 h-6 text-sm rounded">+</button>
-                            </div>
-                        </div>
+                        <label for="big-count" class="block text-sm font-medium text-gray-400 mb-1">BIG</label>
+                        <input type="number" id="big-count" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-center text-lg font-semibold" placeholder="0" inputmode="numeric">
+                    </div>
+                    <div>
+                        <label for="reg-count" class="block text-sm font-medium text-gray-400 mb-1">REG</label>
+                        <input type="number" id="reg-count" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-center text-lg font-semibold" placeholder="0" inputmode="numeric">
                     </div>
                 </div>
-                <div id="end-lamp-info" class="text-xs text-yellow-400 mt-4 pt-3 border-t border-gray-700 text-center hidden"></div>
-            </div>
 
-            <!-- 結果表示 -->
-            <div class="card p-4 rounded-lg shadow-lg">
-                <h3 class="text-center font-medium mb-4 text-lg">設定推測結果</h3>
-                <div id="results-container" class="space-y-3">
-                    <!-- 結果がここに動的に生成される -->
-                </div>
-                <div id="confirmed-info" class="mt-4 text-center text-lg font-bold text-green-400"></div>
-                <div id="result-reasoning" class="mt-4 pt-4 border-t border-gray-700 text-sm space-y-2">
-                    <!-- 推測理由がここに表示される -->
-                </div>
-            </div>
-
-            <!-- リセットボタン -->
-            <div class="text-center py-4">
-                <button id="reset-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
-                    入力値をリセット
-                </button>
-            </div>
-
-            <!-- 解説 -->
-            <div class="card p-4 rounded-lg shadow-lg">
-                <details>
-                    <summary class="cursor-pointer font-medium text-lg text-pink-300">▼ 推測ロジックと確率計算の解説</summary>
-                    <div class="mt-4 text-sm text-gray-400 space-y-4">
-                        <p>このツールは、入力された実践データと、各機種の公開されている解析値・実践値を比較し、どの設定の可能性が最も高いかを確率的に算出します。</p>
-                        <div>
-                            <h4 class="font-bold text-md mb-1">基本的な考え方（ベイズ推定）</h4>
-                            <p>1. <strong>初期状態:</strong> 最初は、どの設定（1～6）であるかの確率は均等（各16.67%）からスタートします。</p>
-                            <p>2. <strong>データ入力:</strong> ゲーム数、ボーナス回数、小役回数などのデータを入力すると、ツールは「もし設定1だったら、このデータになる確率は何%か？」「もし設定6だったら…」という計算を全設定に対して行います。</p>
-                            <p>3. <strong>確率の更新:</strong> ある設定（例：設定6）の理論値に近いデータが入力されるほど、その設定の確率は上昇し、逆に理論値から離れている設定の確率は下降します。これを入力された全てのデータで繰り返し、最終的な確率分布を算出します。</p>
+                <!-- 詳細カウンター -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <!-- ベル -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">通常時ベル</label>
+                        <div class="flex items-center gap-1">
+                            <button onclick="updateCounter('bellCount', null, -1)" class="counter-btn bg-gray-600 w-10 h-10 rounded-lg text-2xl font-bold">-</button>
+                            <input type="number" id="bellCount-input" class="w-full bg-gray-700 rounded-lg text-center h-10 text-lg font-semibold" value="0" inputmode="numeric">
+                            <button onclick="updateCounter('bellCount', null, 1)" class="counter-btn bg-yellow-500 w-10 h-10 rounded-lg text-2xl font-bold">+</button>
                         </div>
-                        <div>
-                            <h4 class="font-bold text-md mb-1">機種別の重要ポイント</h4>
-                            <ul class="list-disc list-inside space-y-1">
-                                <li><strong>スターハナハナ:</strong> ボーナス合算確率、特にREG確率が重要です。小役確率の確定情報がないため、ボーナス出現率を最優先で評価します。</li>
-                                <li><strong>ドラゴンハナハナ～閃光～:</strong> BIG確率が圧倒的に重要です。REG確率の分母が大きいため、REG回数の少なさは低設定の決め手にはなりにくいです。REG中サイドランプの示唆パターンが伝統的な法則と異なる点に注意が必要です。</li>
-                                <li><strong>キングハナハナ:</strong> 全体的にバランスが取れていますが、<strong class="text-yellow-300">REG終了後のフェザーランプ</strong>が非常に強力です。「青で設定2以上確定」といった確定パターンが出現した場合、それ以下の設定の可能性は0%になります。</li>
-                                <li><strong>ハナハナホウオウ～天翔～:</strong> ボーナス終了後のTOPパネル（鳳玉ランプ）の色が重要です。REG後の発生はBIG後より期待度が高くなります。REG中サイドランプのパターンはこちらも伝統的な法則とは異なるため注意が必要です。</li>
-                            </ul>
-                        </div>
-                        <p class="text-xs text-gray-500 pt-2 border-t border-gray-700"><strong>免責事項:</strong> このツールはあくまで確率論に基づいた推測を行うものであり、設定を保証するものではありません。解析情報や実践値にはブレが含まれる可能性があることをご了承ください。</p>
+                        <p id="bell-info" class="text-xs text-yellow-400 mt-1"></p>
                     </div>
-                </details>
-            </div>
+                    <!-- BIG中スイカ -->
+                     <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">BIG中スイカ</label>
+                         <div class="flex items-center gap-1">
+                            <button onclick="updateCounter('bigスイカCount', null, -1)" class="counter-btn bg-gray-600 w-10 h-10 rounded-lg text-2xl font-bold">-</button>
+                            <input type="number" id="bigスイカCount-input" class="w-full bg-gray-700 rounded-lg text-center h-10 text-lg font-semibold" value="0" inputmode="numeric">
+                            <button onclick="updateCounter('bigスイカCount', null, 1)" class="counter-btn bg-red-500 w-10 h-10 rounded-lg text-2xl font-bold">+</button>
+                        </div>
+                        <p id="bigスイカ-info" class="text-xs text-yellow-400 mt-1"></p>
+                    </div>
+                </div>
+
+                <!-- 設定示唆演出 -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-semibold text-gray-300 border-b border-gray-600 pb-2">設定示唆演出</h3>
+                    <!-- REG中サイドランプ -->
+                    <div>
+                         <label class="block text-sm font-medium text-gray-400 mb-2">REG中サイドランプ (スイカ揃い時)</label>
+                         <div class="grid grid-cols-2 gap-4" id="reg-side-lamp-grid"></div>
+                    </div>
+                    <!-- ボーナス後ランプ -->
+                     <div>
+                        <label id="bonus-end-lamp-label" class="block text-sm font-medium text-gray-400 mb-2">ボーナス後ランプ</label>
+                        <p id="end-lamp-info" class="text-xs text-yellow-400 -mt-1 mb-3"></p>
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-sm font-semibold mb-2">BIG後</p>
+                                <div id="end-lamp-big-grid"></div>
+                            </div>
+                             <div>
+                                <p class="text-sm font-semibold mb-2">REG後</p>
+                                <div id="end-lamp-reg-grid"></div>
+                            </div>
+                        </div>
+                     </div>
+                </div>
+            </section>
+
+            <!-- 現在の確率表示 -->
+            <section class="bg-gray-800 p-4 rounded-2xl shadow-lg">
+                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div>
+                        <p class="text-xs text-gray-400">BIG</p>
+                        <p id="current-big-prob" class="text-lg font-semibold">1/---</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">REG</p>
+                        <p id="current-reg-prob" class="text-lg font-semibold">1/---</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">合算</p>
+                        <p id="current-total-prob" class="text-lg font-semibold">1/---</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">ベル</p>
+                        <p id="current-bell-prob" class="text-lg font-semibold">1/---</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 結果表示パネル -->
+            <section class="bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-lg">
+                <h2 class="text-xl font-bold mb-4 text-gray-200">設定推測結果</h2>
+                <div class="space-y-2.5" id="result-bars"></div>
+                <div id="確定-info-panel" class="mt-4 bg-gray-900 p-3 rounded-lg hidden">
+                    <p class="text-base font-bold text-yellow-300">🎉 確定情報 🎉</p>
+                    <p id="確定-info-text" class="mt-1 text-sm text-gray-300"></p>
+                </div>
+            </section>
         </main>
+        
+        <!-- リセットボタン -->
+        <div class="mt-8">
+            <button id="reset-btn" class="w-full bg-red-600 hover:bg-red-700 p-3 rounded-lg font-bold transition">全リセット</button>
+        </div>
     </div>
 
     <script>
         // --- データ定義 ---
         const machineData = {
-            star: {
-                name: "スターハナハナ",
-                bonus: [
-                    { setting: 1, big: 1/270, reg: 1/387 }, { setting: 2, big: 1/262, reg: 1/354 },
-                    { setting: 3, big: 1/252, reg: 1/322 }, { setting: 4, big: 1/240, reg: 1/293 },
-                    { setting: 5, big: 1/229, reg: 1/267 }, { setting: 6, big: 1/218, reg: 1/242 },
-                ],
-                koyaku: { bell: null, bigSuika: null },
-                regSideLamp: {
-                    info: "青・緑で奇数、黄・赤で偶数設定の期待度アップ。設定6は均等。",
-                    patterns: [
-                        { blue: 0.35, green: 0.35, yellow: 0.15, red: 0.15 }, { blue: 0.15, green: 0.15, yellow: 0.35, red: 0.35 },
-                        { blue: 0.35, green: 0.35, yellow: 0.15, red: 0.15 }, { blue: 0.15, green: 0.15, yellow: 0.35, red: 0.35 },
-                        { blue: 0.35, green: 0.35, yellow: 0.15, red: 0.15 }, { blue: 0.25, green: 0.25, yellow: 0.25, red: 0.25 },
-                    ]
-                },
-                endLamp: { name: "フェザーランプ", info: "REG後の発生は期待度アップ。確定パターンはなし。", confirmed: null }
-            },
-            dragon: {
-                name: "ドラゴンハナハナ～閃光～",
-                bonus: [
-                    { setting: 1, big: 1/256, reg: 1/642 }, { setting: 2, big: 1/246, reg: 1/585 },
-                    { setting: 3, big: 1/235, reg: 1/537 }, { setting: 4, big: 1/224, reg: 1/489 },
-                    { setting: 5, big: 1/212, reg: 1/442 }, { setting: 6, big: 1/199, reg: 1/399 },
-                ],
-                koyaku: { bell: [1/7.7, 1/7.5, 1/7.4, 1/7.3, 1/7.2, 1/7.1] },
-                regSideLamp: {
-                    info: "注意: 伝統的な奇数・偶数示唆と異なる可能性があります。実戦値を参考にしています。",
-                    patterns: [
-                        { blue: 0.00, green: 0.00, yellow: 0.60, red: 0.40 }, { blue: 0.11, green: 0.00, yellow: 0.53, red: 0.36 },
-                        { blue: 0.22, green: 0.00, yellow: 0.45, red: 0.33 }, { blue: 0.33, green: 0.00, yellow: 0.37, red: 0.30 },
-                        { blue: 0.44, green: 0.00, yellow: 0.29, red: 0.27 }, { blue: 0.555, green: 0.00, yellow: 0.222, red: 0.222 },
-                    ]
-                },
-                endLamp: { name: "フェザーランプ", info: "確定パターンはなし。", confirmed: null }
-            },
-            king: {
-                name: "キングハナハナ",
-                bonus: [
-                    { setting: 1, big: 1/292, reg: 1/489 }, { setting: 2, big: 1/280, reg: 1/452 },
-                    { setting: 3, big: 1/268, reg: 1/420 }, { setting: 4, big: 1/257, reg: 1/390 },
-                    { setting: 5, big: 1/244, reg: 1/360 }, { setting: 6, big: 1/232, reg: 1/332 },
-                ],
-                koyaku: {
-                    bell: [1/7.97, 1/7.79, 1/7.61, 1/7.43, 1/7.25, 1/7.07],
-                    bigSuika: [1/43.3, 1/41.0, 1/38.7, 1/36.4, 1/34.1, 1/31.8],
-                },
-                regSideLamp: {
-                    info: "青・緑で奇数、黄・赤で偶数設定の期待度アップ。設定6は均等。",
-                    patterns: [
-                        { blue: 0.35, green: 0.35, yellow: 0.15, red: 0.15 }, { blue: 0.15, green: 0.15, yellow: 0.35, red: 0.35 },
-                        { blue: 0.35, green: 0.35, yellow: 0.15, red: 0.15 }, { blue: 0.15, green: 0.15, yellow: 0.35, red: 0.35 },
-                        { blue: 0.35, green: 0.35, yellow: 0.15, red: 0.15 }, { blue: 0.25, green: 0.25, yellow: 0.25, red: 0.25 },
-                    ]
-                },
-                endLamp: { name: "フェザーランプ", info: "REG後に特定色で設定2以上などが確定！", confirmed: { blue: 2, yellow: 3, green: 4, red: 5, rainbow: 6 } }
-            },
-            houou: {
-                name: "ハナハナホウオウ～天翔～",
-                bonus: [
-                    { setting: 1, big: 1/297, reg: 1/496 }, { setting: 2, big: 1/284, reg: 1/458 },
-                    { setting: 3, big: 1/273, reg: 1/425 }, { setting: 4, big: 1/262, reg: 1/397 },
-                    { setting: 5, big: 1/249, reg: 1/366 }, { setting: 6, big: 1/236, reg: 1/337 },
-                ],
-                koyaku: {
-                    bell: [1/8.2, 1/8.04, 1/7.88, 1/7.72, 1/7.56, 1/7.4],
-                    bigSuika: [1/48, 1/44, 1/40, 1/36, 1/32, 1/28],
-                },
-                regSideLamp: {
-                    info: "注意: 伝統的な奇数・偶数示唆と異なる可能性があります。実戦値を参考にしています。",
-                    patterns: [
-                        { blue: 0.25, green: 0.15, yellow: 0.35, red: 0.25 }, { blue: 0.20, green: 0.20, yellow: 0.30, red: 0.30 },
-                        { blue: 0.15, green: 0.25, yellow: 0.25, red: 0.35 }, { blue: 0.10, green: 0.30, yellow: 0.20, red: 0.40 },
-                        { blue: 0.05, green: 0.35, yellow: 0.15, red: 0.45 }, { blue: 0.00, green: 0.40, yellow: 0.10, red: 0.50 },
-                    ]
-                },
-                endLamp: { name: "TOPパネル(鳳玉ランプ)", info: "REG後の発生は期待度アップ。確定パターンはなし。", confirmed: null }
-            }
+            'star-hanahana': { name: 'スターハナハナ', spec: [{ setting: 1, big: 1/270, reg: 1/387, total: 1/159 },{ setting: 2, big: 1/262, reg: 1/354, total: 1/150 },{ setting: 3, big: 1/252, reg: 1/322, total: 1/141 },{ setting: 4, big: 1/240, reg: 1/293, total: 1/132 },{ setting: 5, big: 1/229, reg: 1/267, total: 1/123 },{ setting: 6, big: 1/218, reg: 1/242, total: 1/114 },], bell: { 1: 1/7.5, 6: 1/7.2 }, bigスイカ: { 1: 1/42, 6: 1/34 }, regSideLamp: { blue: { odd: 1.2, even: 0.8 }, green: { odd: 1.2, even: 0.8 }, yellow: { odd: 0.8, even: 1.2 }, red: { odd: 0.8, even: 1.2 }, }, endLamp: { label: 'ボーナス後フェザーランプ', 確定: { rainbow: 6 }, weights: { blue: 1.1, yellow: 1.2, green: 1.3, red: 1.4, rainbow: 2.0 } } },
+            'dragon-hanahana': { name: 'ドラゴンハナハナ～閃光～', spec: [{ setting: 1, big: 1/256, reg: 1/642, total: 1/183 },{ setting: 2, big: 1/246, reg: 1/585, total: 1/173 },{ setting: 3, big: 1/235, reg: 1/537, total: 1/163 },{ setting: 4, big: 1/224, reg: 1/489, total: 1/153 },{ setting: 5, big: 1/212, reg: 1/442, total: 1/143 },{ setting: 6, big: 1/199, reg: 1/399, total: 1/133 },], bell: { 1: 1/7.7, 6: 1/7.1 }, bigスイカ: { 1: 1/34, 6: 1/30 }, regSideLamp: { blue: [0, 0, 0, 0, 0, 0.555], yellow: [0.6, 0, 0, 0, 0, 0.222], green: [0, 0, 0, 0, 0, 0], red: [0.4, 0, 0, 0, 0, 0.222], }, endLamp: { label: 'ボーナス後フェザーランプ', 確定: { rainbow: 6 }, weights: { blue: 1.0, yellow: 1.1, green: 1.1, red: 1.2, rainbow: 2.0 } } },
+            'king-hanahana': { name: 'キングハナハナ', spec: [{ setting: 1, big: 1/292, reg: 1/489, total: 1/183 },{ setting: 2, big: 1/280, reg: 1/452, total: 1/172 },{ setting: 3, big: 1/268, reg: 1/420, total: 1/163 },{ setting: 4, big: 1/257, reg: 1/390, total: 1/154 },{ setting: 5, big: 1/244, reg: 1/360, total: 1/145 },{ setting: 6, big: 1/232, reg: 1/332, total: 1/136 },], bell: { 1: 1/7.97, 6: 1/7.08 }, bigスイカ: { 1: 1/41.5, 6: 1/32.5 }, regSideLamp: { blue: { odd: 1.2, even: 0.8 }, green: { odd: 1.2, even: 0.8 }, yellow: { odd: 0.8, even: 1.2 }, red: { odd: 0.8, even: 1.2 }, }, endLamp: { label: 'REG後フェザーランプ', 確定: { blue: 2, yellow: 3, green: 4, red: 5, rainbow: 6 }, weights: null } },
+            'hanahana-houou': { name: 'ハナハナホウオウ～天翔～', spec: [{ setting: 1, big: 1/297, reg: 1/496, total: 1/186 },{ setting: 2, big: 1/284, reg: 1/458, total: 1/175 },{ setting: 3, big: 1/273, reg: 1/425, total: 1/166 },{ setting: 4, big: 1/262, reg: 1/397, total: 1/157 },{ setting: 5, big: 1/249, reg: 1/366, total: 1/148 },{ setting: 6, big: 1/236, reg: 1/337, total: 1/139 },], bell: { 1: 1/8.2, 6: 1/7.4 }, bigスイカ: { 1: 1/48, 4: 1/24, 5: 1/16, 6: 1/12 }, regSideLamp: { blue: [0, 0, 0, 0, 0, 0], yellow: [0, 0, 0, 0, 0, 0], green: [0, 0, 0, 0, 0, 0.4], red: [0, 0, 0, 0, 0, 0.5], }, endLamp: { label: 'ボーナス後TOPパネル', 確定: { rainbow: 6 }, weights: { blue: 1.1, yellow: 1.2, green: 1.3, red: 1.4, rainbow: 2.0 } } }
         };
+
+        // --- 状態管理 ---
+        let allMachineStates = {};
+        let state;
+        const getInitialState = (machineId) => ({
+            machine: machineId, games: 0, bigCount: 0, regCount: 0, bellCount: 0, bigスイカCount: 0,
+            regSideLamp: { blue: 0, yellow: 0, green: 0, red: 0 },
+            endLamp: {
+                big: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 },
+                reg: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 }
+            }
+        });
 
         // --- DOM要素 ---
         const machineSelect = document.getElementById('machine-select');
-        const resetButton = document.getElementById('reset-button');
-        const resultsContainer = document.getElementById('results-container');
-        const confirmedInfo = document.getElementById('confirmed-info');
-        const resultReasoning = document.getElementById('result-reasoning');
-
-        // --- アプリケーションの状態 ---
-        let state = {
-            machine: 'star',
-            inputs: {
-                totalGames: 0, big: 0, reg: 0, bell: 0, bigSuika: 0,
-                regSide: { blue: 0, yellow: 0, green: 0, red: 0 },
-                endLampBig: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 },
-                endLampReg: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 },
-            }
-        };
-
-        // --- イベントリスナー ---
-        document.addEventListener('DOMContentLoaded', initialize);
-        machineSelect.addEventListener('change', handleMachineChange);
-        resetButton.addEventListener('click', resetAll);
+        const gamesInput = document.getElementById('games');
+        const bigCountInput = document.getElementById('big-count');
+        const regCountInput = document.getElementById('reg-count');
+        const resultBarsContainer = document.getElementById('result-bars');
+        const resetBtn = document.getElementById('reset-btn');
 
         // --- 初期化 ---
-        function initialize() {
-            setupInputListeners();
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialMachine = 'star-hanahana';
+            allMachineStates[initialMachine] = getInitialState(initialMachine);
+            state = allMachineStates[initialMachine];
+            
+            buildIndicatorCounters();
+            setupEventListeners();
             updateUIForMachine();
+            renderResultBars();
             calculateAndDisplay();
-        }
+        });
+        
+        // --- 設定示唆カウンターの動的生成 ---
+        function buildIndicatorCounters() {
+            const regSideLampGrid = document.getElementById('reg-side-lamp-grid');
+            const endLampBigGrid = document.getElementById('end-lamp-big-grid');
+            const endLampRegGrid = document.getElementById('end-lamp-reg-grid');
+            
+            const colors = {
+                blue: { name: '青', bg: 'bg-blue-600', plus: 'bg-blue-500' },
+                yellow: { name: '黄', bg: 'bg-yellow-500', plus: 'bg-yellow-400' },
+                green: { name: '緑', bg: 'bg-green-600', plus: 'bg-green-500' },
+                red: { name: '赤', bg: 'bg-red-600', plus: 'bg-red-500' },
+                rainbow: { name: '虹', bg: 'hibiscus-gradient', plus: 'hibiscus-gradient' }
+            };
 
-        function setupInputListeners() {
-            // +/- ボタン
-            document.querySelectorAll('.counter-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const target = e.target.dataset.target;
-                    const isPlus = e.target.classList.contains('plus');
-                    updateCounter(target, isPlus);
-                });
+            // REGサイドランプ
+            Object.entries(colors).forEach(([key, val]) => {
+                if (key === 'rainbow') return;
+                const html = `
+                    <div class="bg-gray-700 p-2 rounded-lg">
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <span class="w-4 h-4 rounded-full ${val.bg}"></span>
+                            <span class="font-semibold">${val.name}</span>
+                        </div>
+                        <div class="flex items-center gap-1 mx-2">
+                            <button onclick="updateCounter('regSideLamp', '${key}', -1)" class="counter-btn bg-gray-600 w-8 h-8 rounded-md text-xl">-</button>
+                            <input type="number" id="regSideLamp-${key}-input" class="w-full bg-gray-900 rounded text-center h-8 font-semibold" value="0" inputmode="numeric">
+                            <button onclick="updateCounter('regSideLamp', '${key}', 1)" class="counter-btn ${val.plus} w-8 h-8 rounded-md text-xl">+</button>
+                        </div>
+                    </div>`;
+                regSideLampGrid.innerHTML += html;
             });
-            // 数字入力フィールド
-            document.querySelectorAll('.number-input').forEach(input => {
-                input.addEventListener('input', (e) => {
-                    const id = e.target.id;
-                    const value = parseInt(e.target.value) || 0;
-                    const target = id.replace('-count', '');
-                    updateStateFromInput(target, value);
+            
+            // ボーナス後ランプ
+            ['big', 'reg'].forEach(type => {
+                const container = type === 'big' ? endLampBigGrid : endLampRegGrid;
+                const colorEntries = Object.entries(colors);
+                const topRow = colorEntries.slice(0, 3);
+                const bottomRow = colorEntries.slice(3);
+
+                let topHtml = '<div class="grid grid-cols-3 gap-2">';
+                topRow.forEach(([key, val]) => {
+                    topHtml += createLampButtonHtml(type, key, val);
                 });
+                topHtml += '</div>';
+
+                let bottomHtml = '<div class="flex justify-center gap-2 mt-2">';
+                bottomRow.forEach(([key, val]) => {
+                    bottomHtml += `<div class="w-[49%]">${createLampButtonHtml(type, key, val)}</div>`;
+                });
+                bottomHtml += '</div>';
+
+                container.innerHTML = topHtml + bottomHtml;
             });
         }
         
-        // --- 状態更新ロジック ---
-        function handleMachineChange() {
-            state.machine = machineSelect.value;
-            // 入力値はリセットしない
-            updateUIForMachine();
-            calculateAndDisplay();
+        function createLampButtonHtml(type, key, val) {
+            return `
+                <div class="bg-gray-700 p-2 rounded-lg">
+                    <div class="flex items-center justify-center gap-2 mb-2">
+                        <span class="w-4 h-4 rounded-full ${val.bg}"></span>
+                        <span class="font-semibold">${val.name}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="updateCounter('endLamp', '${type}-${key}', -1)" class="counter-btn bg-gray-600 w-8 h-8 rounded-md text-xl">-</button>
+                        <input type="number" id="endLamp-${type}-${key}-input" class="w-full bg-gray-900 rounded text-center h-8 font-semibold" value="0" inputmode="numeric">
+                        <button onclick="updateCounter('endLamp', '${type}-${key}', 1)" class="counter-btn ${val.plus} w-8 h-8 rounded-md text-xl">+</button>
+                    </div>
+                </div>`;
         }
 
-        function updateStateFromInput(target, value) {
-            const parts = target.split('-');
-            if (parts.length === 1) { // totalGames, big, reg, bell, bigSuika
-                state.inputs[target] = value;
-            } else if (parts[1] === 'side') { // reg-side-color
-                state.inputs.regSide[parts[2]] = value;
-            } else if (parts[1] === 'lamp') { // end-lamp-big/reg-color
-                const type = parts[2] === 'big' ? 'endLampBig' : 'endLampReg';
-                state.inputs[type][parts[3]] = value;
-            }
-            calculateAndDisplay();
-        }
 
-        function updateCounter(target, isPlus) {
-            const amount = isPlus ? 1 : -1;
-            const parts = target.split('-');
-            let currentValue = 0;
+        // --- イベントリスナー ---
+        function setupEventListeners() {
+            machineSelect.addEventListener('change', (e) => {
+                const newMachineId = e.target.value;
+                if (!allMachineStates[newMachineId]) {
+                    allMachineStates[newMachineId] = getInitialState(newMachineId);
+                }
+                state = allMachineStates[newMachineId];
+                populateUIFromState();
+                updateUIForMachine();
+                calculateAndDisplay();
+            });
+
+            [gamesInput, bigCountInput, regCountInput].forEach(input => 
+                input.addEventListener('input', () => {
+                    updateStateFromInputs();
+                    calculateAndDisplay();
+                })
+            );
             
-            if (parts.length === 1) {
-                currentValue = state.inputs[parts[0]];
-                state.inputs[parts[0]] = Math.max(0, currentValue + amount);
-            } else if (parts[1] === 'side') {
-                currentValue = state.inputs.regSide[parts[2]];
-                state.inputs.regSide[parts[2]] = Math.max(0, currentValue + amount);
-            } else if (parts[1] === 'lamp') {
-                const type = parts[2] === 'big' ? 'endLampBig' : 'endLampReg';
-                currentValue = state.inputs[type][parts[3]];
-                state.inputs[type][parts[3]] = Math.max(0, currentValue + amount);
-            }
+            document.querySelectorAll('input[type=number]').forEach(input => {
+                if (['games', 'big-count', 'reg-count'].includes(input.id)) return;
+                input.addEventListener('input', (e) => {
+                    const parts = e.target.id.split('-');
+                    const category = parts[0];
+                    const type = parts.length === 3 ? `${parts[1]}-${parts[2]}` : (parts.length === 2 ? null : parts[1]);
+                    updateCounter(category, type, 0, parseInt(e.target.value) || 0);
+                });
+            });
+
+            resetBtn.addEventListener('click', () => {
+                if (confirm('すべての入力データをリセットしますか？')) {
+                    const currentMachineId = state.machine;
+                    allMachineStates = {};
+                    allMachineStates[currentMachineId] = getInitialState(currentMachineId);
+                    state = allMachineStates[currentMachineId];
+                    populateUIFromState();
+                    calculateAndDisplay();
+                }
+            });
+        }
+        
+        function populateUIFromState() {
+            gamesInput.value = state.games || '';
+            bigCountInput.value = state.bigCount || '';
+            regCountInput.value = state.regCount || '';
+            document.getElementById('bellCount-input').value = state.bellCount;
+            document.getElementById('bigスイカCount-input').value = state.bigスイカCount;
             
-            updateDisplay();
-            calculateAndDisplay();
+            Object.keys(state.regSideLamp).forEach(color => {
+                document.getElementById(`regSideLamp-${color}-input`).value = state.regSideLamp[color];
+            });
+            ['big', 'reg'].forEach(type => {
+                Object.keys(state.endLamp[type]).forEach(color => {
+                    document.getElementById(`endLamp-${type}-${color}-input`).value = state.endLamp[type][color];
+                });
+            });
         }
 
-        function resetAll() {
-            state.inputs = {
-                totalGames: 0, big: 0, reg: 0, bell: 0, bigSuika: 0,
-                regSide: { blue: 0, yellow: 0, green: 0, red: 0 },
-                endLampBig: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 },
-                endLampReg: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 },
-            };
-            updateDisplay();
-            calculateAndDisplay();
-        }
-
-        // --- UI更新 ---
         function updateUIForMachine() {
             const data = machineData[state.machine];
-            const bellContainer = document.getElementById('bell-counter-container');
-            const bellInfo = document.getElementById('bell-info');
-            if (data.koyaku.bell) {
-                bellContainer.style.opacity = '1';
-                bellInfo.classList.add('hidden');
-            } else {
-                bellContainer.style.opacity = '0.5';
-                bellInfo.textContent = "この機種のベル確率の確定情報はありません。";
-                bellInfo.classList.remove('hidden');
-            }
-
-            const bigSuikaContainer = document.getElementById('big-suika-counter-container');
-            const bigSuikaInfo = document.getElementById('big-suika-info');
-            if (data.koyaku.bigSuika) {
-                bigSuikaContainer.style.opacity = '1';
-                bigSuikaInfo.classList.add('hidden');
-            } else {
-                bigSuikaContainer.style.opacity = '0.5';
-                bigSuikaInfo.textContent = "この機種のBIG中スイカ確率の確定情報はありません。";
-                bigSuikaInfo.classList.remove('hidden');
-            }
-            document.getElementById('reg-side-info').textContent = data.regSideLamp.info;
-            document.getElementById('reg-side-info').classList.remove('hidden');
-            document.getElementById('end-lamp-title').textContent = `ボーナス後${data.endLamp.name}`;
-            document.getElementById('end-lamp-info').textContent = data.endLamp.info;
-            document.getElementById('end-lamp-info').classList.remove('hidden');
-        }
-
-        function updateDisplay() {
-            // 全てのinputフィールドの値をstateに合わせて更新
-            for (const key in state.inputs) {
-                if (typeof state.inputs[key] === 'object') {
-                    for (const subKey in state.inputs[key]) {
-                        let id;
-                        if (key === 'regSide') id = `reg-side-${subKey}-count`;
-                        else if (key === 'endLampBig') id = `end-lamp-big-${subKey}-count`;
-                        else if (key === 'endLampReg') id = `end-lamp-reg-${subKey}-count`;
-                        const el = document.getElementById(id);
-                        if (el) el.value = state.inputs[key][subKey];
-                    }
-                } else {
-                    const el = document.getElementById(`${key}-count`) || document.getElementById(key);
-                    if (el) el.value = state.inputs[key];
-                }
-            }
-            
-            // 確率表示
-            const { totalGames, big, reg, bell, bigSuika, regSide } = state.inputs;
-            document.getElementById('big-prob').textContent = big > 0 ? `1/${(totalGames / big).toFixed(1)}` : '1/---';
-            document.getElementById('reg-prob').textContent = reg > 0 ? `1/${(totalGames / reg).toFixed(1)}` : '1/---';
-            document.getElementById('bell-prob').textContent = bell > 0 ? `1/${(totalGames / bell).toFixed(2)}` : '1/---';
-            const bigGames = big * 20;
-            document.getElementById('big-suika-prob').textContent = bigSuika > 0 && bigGames > 0 ? `1/${(bigGames / bigSuika).toFixed(1)}` : '1/---';
-
-            let totalSideLamps = Object.values(regSide).reduce((a, b) => a + b, 0);
-            const oddCount = regSide.blue + regSide.green;
-            const evenCount = regSide.yellow + regSide.red;
-            document.getElementById('odd-prob').textContent = totalSideLamps > 0 ? `${(oddCount / totalSideLamps * 100).toFixed(1)}%` : '0.0%';
-            document.getElementById('even-prob').textContent = totalSideLamps > 0 ? `${(evenCount / totalSideLamps * 100).toFixed(1)}%` : '0.0%';
+            document.getElementById('bell-info').textContent = data.name === 'スターハナハナ' ? `※推定値を基に計算` : `設定1: ${formatProb(data.bell[1])} ～ 6: ${formatProb(data.bell[6])}`;
+            document.getElementById('bigスイカ-info').textContent = data.name === 'スターハナハナ' ? `※推定値を基に計算` : `高設定ほど優遇`;
+            document.getElementById('bonus-end-lamp-label').textContent = data.endLamp.label;
+            document.getElementById('end-lamp-info').textContent = data.endLamp.確定 ? '※REG後の色で設定が確定する場合があります' : '※高設定ほど白以外が選ばれやすい傾向';
         }
         
-        // --- 計算ロジック ---
-        function logFactorial(n) { let s=0; for(let i=1;i<=n;i++) s+=Math.log(i); return s; }
-        function logBinomialProb(k, n, p) {
-            if (p<=0||p>=1||k<0||n<k) return -Infinity;
-            return logFactorial(n)-logFactorial(k)-logFactorial(n-k)+k*Math.log(p)+(n-k)*Math.log(1-p);
+        function updateStateFromInputs() {
+            state.games = parseInt(gamesInput.value) || 0;
+            state.bigCount = parseInt(bigCountInput.value) || 0;
+            state.regCount = parseInt(regCountInput.value) || 0;
         }
 
+        function updateCounter(category, type, change, directValue = -1) {
+            let targetState, inputElement;
+            if (category === 'bellCount' || category === 'bigスイカCount') {
+                state[category] = directValue !== -1 ? directValue : Math.max(0, state[category] + change);
+                document.getElementById(`${category}-input`).value = state[category];
+            } else {
+                let mainKey, subKey;
+                 if (category === 'regSideLamp') {
+                    [mainKey, subKey] = [category, type];
+                    targetState = state[mainKey];
+                 } else { // endLamp
+                    [mainKey, subKey] = [category, type.split('-')[0]];
+                    const colorKey = type.split('-')[1];
+                    targetState = state[mainKey][subKey];
+                    subKey = colorKey;
+                 }
+                 targetState[subKey] = directValue !== -1 ? directValue : Math.max(0, targetState[subKey] + change);
+                 inputElement = document.getElementById(`${category}-${type}-input`);
+                 if (inputElement) inputElement.value = targetState[subKey];
+            }
+            calculateAndDisplay();
+        }
+        
         function calculateAndDisplay() {
-            updateDisplay(); // 表示を最新の状態に
-            const data = machineData[state.machine];
-            let factorScores = Array(6).fill(null).map(() => ({}));
-            let logLikelihoods = new Array(6).fill(0);
-            const { totalGames, big, reg, bell, bigSuika, regSide } = state.inputs;
-
-            if (totalGames > 0) {
-                for (let i=0; i<6; i++) {
-                    factorScores[i].big = logBinomialProb(big, totalGames, data.bonus[i].big);
-                    factorScores[i].reg = logBinomialProb(reg, totalGames, data.bonus[i].reg);
-                    logLikelihoods[i] += factorScores[i].big + factorScores[i].reg;
-                    if (data.koyaku.bell) {
-                        factorScores[i].bell = logBinomialProb(bell, totalGames, data.koyaku.bell[i]);
-                        logLikelihoods[i] += factorScores[i].bell;
-                    }
-                }
-            }
-            const bigGames = big * 20;
-            if (bigGames > 0 && data.koyaku.bigSuika) {
-                for (let i=0; i<6; i++) {
-                    factorScores[i].bigSuika = logBinomialProb(bigSuika, bigGames, data.koyaku.bigSuika[i]);
-                    logLikelihoods[i] += factorScores[i].bigSuika;
-                }
-            }
-            const totalSideLamps = Object.values(regSide).reduce((a, b) => a + b, 0);
-            if (totalSideLamps > 0) {
-                for (let i=0; i<6; i++) {
-                    const p = data.regSideLamp.patterns[i];
-                    factorScores[i].regSide = regSide.blue*Math.log(p.blue||1e-9) + regSide.green*Math.log(p.green||1e-9) + regSide.yellow*Math.log(p.yellow||1e-9) + regSide.red*Math.log(p.red||1e-9);
-                    logLikelihoods[i] += factorScores[i].regSide;
-                }
-            }
-
-            let confirmedSetting = 0;
-            if (data.endLamp.confirmed) {
-                const { rainbow, red, green, yellow, blue } = state.inputs.endLampReg;
-                if (rainbow > 0) confirmedSetting = Math.max(confirmedSetting, data.endLamp.confirmed.rainbow);
-                if (red > 0) confirmedSetting = Math.max(confirmedSetting, data.endLamp.confirmed.red);
-                if (green > 0) confirmedSetting = Math.max(confirmedSetting, data.endLamp.confirmed.green);
-                if (yellow > 0) confirmedSetting = Math.max(confirmedSetting, data.endLamp.confirmed.yellow);
-                if (blue > 0) confirmedSetting = Math.max(confirmedSetting, data.endLamp.confirmed.blue);
-            }
-            if (confirmedSetting > 0) {
-                for (let i=0; i<confirmedSetting-1; i++) logLikelihoods[i] = -Infinity;
-                confirmedInfo.textContent = `設定${confirmedSetting}以上 確定！`;
-            } else { confirmedInfo.textContent = ''; }
-            
-            const rainbowCount = state.inputs.endLampBig.rainbow + state.inputs.endLampReg.rainbow;
-            if (rainbowCount > 0) {
-                 logLikelihoods[0]-=100*rainbowCount; logLikelihoods[1]-=80*rainbowCount;
-                 logLikelihoods[2]-=60*rainbowCount; logLikelihoods[3]-=40*rainbowCount;
-                 logLikelihoods[4]+=50*rainbowCount; logLikelihoods[5]+=100*rainbowCount;
-            }
-
-            const maxLog = Math.max(...logLikelihoods.filter(l => isFinite(l)));
-            if (!isFinite(maxLog)) {
-                renderResults(Array(6).fill(null).map((_, i) => ({ setting: i + 1, prob: 1/6 })));
-                generateAndRenderReasoning(null, factorScores);
-                return;
-            }
-            const probs = logLikelihoods.map(l => Math.exp(l - maxLog));
-            const totalProb = probs.reduce((a, b) => a + b, 0);
-            const finalProbs = probs.map(p => totalProb > 0 ? p / totalProb : 0);
-            
-            const sortedResults = finalProbs
-                .map((prob, i) => ({ setting: i + 1, prob }))
-                .sort((a, b) => b.prob - a.prob);
-
-            renderResults(sortedResults);
-            generateAndRenderReasoning(sortedResults[0], factorScores, confirmedSetting);
-        }
-
-        // --- 結果描画 ---
-        function renderResults(sortedResults) {
-            resultsContainer.innerHTML = '';
-            const colors = ['bg-blue-600', 'bg-cyan-600', 'bg-green-600', 'bg-yellow-500', 'bg-orange-500', 'bg-red-600'];
-            const textColors = ['text-blue-200', 'text-cyan-200', 'text-green-200', 'text-yellow-100', 'text-orange-100', 'text-red-200'];
-            
-            sortedResults.forEach(({ setting, prob }) => {
-                const i = setting - 1;
-                const percentage = (prob * 100).toFixed(2);
-                const resultEl = document.createElement('div');
-                resultEl.className = 'flex items-center space-x-3';
-                resultEl.innerHTML = `
-                    <span class="font-bold w-12 ${textColors[i]}">設定${setting}</span>
-                    <div class="w-full bg-gray-700 rounded-full h-6">
-                        <div class="result-bar-inner ${colors[i]} h-6 rounded-full flex items-center justify-end pr-2" style="width: ${percentage}%">
-                            <span class="text-xs font-medium text-white">${percentage}%</span>
-                        </div>
-                    </div>
-                `;
-                resultsContainer.appendChild(resultEl);
-            });
+            updateStateFromInputs();
+            document.getElementById('current-big-prob').textContent = state.bigCount > 0 ? `1/${(state.games / state.bigCount).toFixed(1)}` : '1/---';
+            document.getElementById('current-reg-prob').textContent = state.regCount > 0 ? `1/${(state.games / state.regCount).toFixed(1)}` : '1/---';
+            const totalBonus = state.bigCount + state.regCount;
+            document.getElementById('current-total-prob').textContent = totalBonus > 0 ? `1/${(state.games / totalBonus).toFixed(1)}` : '1/---';
+            document.getElementById('current-bell-prob').textContent = state.bellCount > 0 ? `1/${(state.games / state.bellCount).toFixed(1)}` : '1/---';
+            const results = calculateSettings();
+            renderResultBars(results);
         }
         
-        function generateAndRenderReasoning(topResult, factorScores, confirmedSetting) {
-            if (!topResult || state.inputs.totalGames < 50) {
-                resultReasoning.innerHTML = `<p class="text-gray-500">ゲーム数が増えると、より詳細な推測理由が表示されます。</p>`;
-                return;
-            }
-            const topSetting = topResult.setting;
+        function calculateSettings() {
             const data = machineData[state.machine];
-            const i = topSetting - 1;
-            let reasons = [];
+            let scores = [1, 1, 1, 1, 1, 1];
 
-            if (confirmedSetting > 0) {
-                reasons.push({ text: `REG後のランプで<strong>設定${confirmedSetting}以上が確定</strong>しています。`, score: Infinity });
+            let 確定Setting = 0;
+            let 確定Color = '';
+            const colorNames = {blue: '青', yellow: '黄', green: '緑', red: '赤', rainbow: '虹'};
+            
+            // 全機種共通のREG後虹は設定6確定
+            if (state.endLamp.reg.rainbow > 0) {
+                確定Setting = 6;
+                確定Color = colorNames.rainbow;
             }
-            const rainbowCount = state.inputs.endLampBig.rainbow + state.inputs.endLampReg.rainbow;
-            if (rainbowCount > 0) {
-                reasons.push({ text: `<strong>虹ランプの出現</strong>により、高設定の期待度が大幅にアップしています。`, score: 1000 });
-            }
-
-            const factorNames = {
-                big: "BIG確率", reg: "REG確率", bell: "ベル確率",
-                bigSuika: "BIG中スイカ", regSide: "REG中サイドランプ"
-            };
-
-            for (const factor in factorScores[i]) {
-                if (isFinite(factorScores[i][factor])) {
-                    // 他の設定と比較して、この設定のスコアがどれだけ優れているかを評価
-                    let score = 0;
-                    for (let j=0; j<6; j++) {
-                        if (isFinite(factorScores[j][factor])) {
-                            score += (factorScores[i][factor] - factorScores[j][factor]);
-                        }
-                    }
-                    if (score > 0.1) { // わずかな差は無視
-                         reasons.push({ text: `<strong>${factorNames[factor]}</strong>が設定${topSetting}の理論値に近い挙動です。`, score });
+            // キングハナハナ固有のREG後ランプ確定パターン
+            if (data.name === 'キングハナハナ') {
+                for (const [color, setting] of Object.entries(data.endLamp.確定)) {
+                    if (state.endLamp.reg[color] > 0 && setting > 確定Setting) {
+                        確定Setting = setting;
+                        確定Color = colorNames[color];
                     }
                 }
             }
             
-            reasons.sort((a, b) => b.score - a.score);
-            
-            if (reasons.length > 0) {
-                resultReasoning.innerHTML = `<h4 class="font-bold mb-1">設定${topSetting}の可能性が高い主な理由:</h4><ul class="list-disc list-inside text-gray-300">${reasons.slice(0, 3).map(r => `<li>${r.text}</li>`).join('')}</ul>`;
+            const 確定Panel = document.getElementById('確定-info-panel');
+            const 確定Text = document.getElementById('確定-info-text');
+            if (確定Setting > 0) {
+                scores.forEach((s, i) => {
+                    if (i + 1 < 確定Setting) {
+                        scores[i] = 0;
+                    }
+                });
+                確定Panel.classList.remove('hidden');
+                確定Text.textContent = `REG後${確定Color}ランプで設定${確定Setting}以上確定!`;
             } else {
-                resultReasoning.innerHTML = `<p class="text-gray-500">各要素が総合的に評価されています。</p>`;
+                 確定Panel.classList.add('hidden');
+            }
+
+            if (state.games >= 100) {
+                const currentBigProb = state.bigCount / state.games;
+                const currentRegProb = state.regCount / state.games;
+                data.spec.forEach((s, i) => {
+                    if (scores[i] === 0) return;
+                    const bigDiff = Math.abs(currentBigProb - s.big);
+                    const regDiff = Math.abs(currentRegProb - s.reg);
+                    const regWeight = state.machine === 'dragon-hanahana' ? 0.5 : 2.0;
+                    const bigWeight = state.machine === 'dragon-hanahana' ? 3.0 : 1.0;
+                    scores[i] *= (1 / (bigDiff * bigWeight + 0.0001)) * (1 / (regDiff * regWeight + 0.0001));
+                });
+
+                if (state.bellCount > 0) {
+                    const currentBellProb = state.bellCount / state.games;
+                    data.spec.forEach((s, i) => {
+                        if (scores[i] === 0) return;
+                        const bellProb = interpolate(data.bell, s.setting);
+                        scores[i] *= (1 / (Math.abs(currentBellProb - bellProb) + 0.001));
+                    });
+                }
+                if (state.bigスイカCount > 0 && state.bigCount > 0) {
+                     const currentスイカProb = state.bigスイカCount / (state.bigCount * 24);
+                     data.spec.forEach((s, i) => {
+                        if (scores[i] === 0) return;
+                        const スイカProb = interpolate(data.bigスイカ, s.setting);
+                        scores[i] *= (1 / (Math.abs(currentスイカProb - スイカProb) + 0.001));
+                     });
+                }
+
+                if (Object.values(state.regSideLamp).reduce((a, b) => a + b, 0) > 0) {
+                    if (Array.isArray(data.regSideLamp.blue)) {
+                        data.spec.forEach((s, i) => {
+                             if (scores[i] === 0) return;
+                             let lampScore = 1;
+                             Object.keys(state.regSideLamp).forEach(color => {
+                                 lampScore += state.regSideLamp[color] * (data.regSideLamp[color]?.[i] || 0);
+                             });
+                             scores[i] *= (lampScore > 0 ? lampScore : 0.1);
+                        });
+                    } else {
+                        data.spec.forEach((s, i) => {
+                            if (scores[i] === 0) return;
+                            const isEven = (s.setting % 2 === 0);
+                            const oddCount = state.regSideLamp.blue + state.regSideLamp.green;
+                            const evenCount = state.regSideLamp.yellow + state.regSideLamp.red;
+                            if (isEven) scores[i] *= Math.pow(1.2, evenCount) * Math.pow(0.8, oddCount);
+                            else scores[i] *= Math.pow(1.2, oddCount) * Math.pow(0.8, evenCount);
+                        });
+                    }
+                }
+                
+                if (data.endLamp.weights) {
+                     ['big', 'reg'].forEach(type => {
+                        Object.entries(state.endLamp[type]).forEach(([color, count]) => {
+                            if (count > 0) {
+                                const weight = data.endLamp.weights[color] || 1;
+                                data.spec.forEach((s, i) => {
+                                    if (scores[i] === 0) return;
+                                    const settingWeight = 1 + (weight - 1) * (s.setting / 6);
+                                    scores[i] *= Math.pow(settingWeight, count);
+                                });
+                            }
+                        });
+                     });
+                }
+            }
+
+            const totalScore = scores.reduce((a, b) => a + b, 0);
+            return totalScore > 0 ? scores.map(s => s / totalScore * 100) : [0,0,0,0,0,0];
+        }
+
+        function renderResultBars(results = []) {
+            resultBarsContainer.innerHTML = '';
+            const barColors = ['bg-blue-600', 'bg-cyan-600', 'bg-green-600', 'bg-yellow-500', 'bg-orange-500', 'bg-red-600'];
+            for (let i = 0; i < 6; i++) {
+                const percentage = results[i] || 0;
+                resultBarsContainer.innerHTML += `
+                    <div class="flex items-center">
+                        <div class="w-8 text-center font-bold text-lg">${i + 1}</div>
+                        <div class="flex-grow bg-gray-700 rounded-full h-7 overflow-hidden">
+                            <div class="result-bar-inner ${barColors[i]} h-full flex items-center justify-end pr-2" style="width: ${percentage.toFixed(1)}%;">
+                                <span class="font-semibold text-white text-shadow text-sm">${percentage.toFixed(1)}%</span>
+                            </div>
+                        </div>
+                    </div>`;
             }
         }
+        
+        function formatProb(prob) { return `1/${(1/prob).toFixed(2)}`; }
+        function interpolate(data, setting) {
+            const known = Object.keys(data).map(Number).sort((a,b) => a-b);
+            if (data[setting]) return data[setting];
+            let lower = known.filter(s => s < setting).pop() || known[0];
+            let upper = known.filter(s => s > setting).shift() || known[known.length - 1];
+            if (lower === upper) return data[lower];
+            return data[lower] + (data[upper] - data[lower]) * (setting - lower) / (upper - lower);
+        }
+
     </script>
 </body>
 </html>
