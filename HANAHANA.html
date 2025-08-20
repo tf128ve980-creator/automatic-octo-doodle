@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ハナハナ設定推測ツール</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        html { color-scheme: dark; }
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .btn:focus { outline: none; box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        .counter-btn { width: 3rem; height: 3rem; font-size: 1.5rem; line-height: 2rem; }
+        .rainbow-text { background: linear-gradient(to right, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .rainbow-btn { background: linear-gradient(to right, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6); }
+        /* AI分析結果のスタイル */
+        #aiAdvisorResult h3 { font-size: 1.125rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; padding-bottom: 0.25rem; border-bottom: 1px solid #4a5568; }
+        #aiAdvisorResult ul { list-style-position: inside; padding-left: 0.5rem; }
+        #aiAdvisorResult li { margin-bottom: 0.25rem; }
+        #aiAdvisorResult p { margin-top: 1rem; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex flex-col items-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl mx-auto">
+        <!-- ヘッダー -->
+        <header class="text-center mb-4 flex items-center justify-center space-x-3">
+            <svg class="w-10 h-10 text-red-500" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M16.5,8.67c-0.83-0.83-1.94-1.3-3.09-1.32c-0.34,0-0.67,0.04-1,0.11C11.38,3.67,7.84,1.83,4.5,2.41 c-1.33,0.23-2.5,1-3.26,2.11c-1.39,2.03-0.53,4.79,1.62,6.94c2.15,2.15,4.91,2.98,6.94,1.62c0.76-0.45,1.36-1.05,1.8-1.75 c0.02,0,0.04,0,0.06,0c0.02,0,0.04,0,0.06,0c0.45,0.7,1.04,1.3,1.8,1.75c2.03,1.36,4.79,0.53,6.94-1.62 c2.15-2.15,2.98-4.91,1.62-6.94c-0.76-1.11-1.93-1.88-3.26-2.11C16.16,1.83,12.62,3.67,11.59,7.48 C12.29,7.38,12.96,7.4,13.59,7.6c0.6,0.19,1.16,0.49,1.65,0.88C15.71,8.95,16.12,9.2,16.5,8.67z M12,10.5 c-0.83,0-1.5-0.67-1.5-1.5s0.67-1.5,1.5-1.5s1.5,0.67,1.5,1.5S12.83,10.5,12,10.5z"/></svg>
+            <h1 class="text-2xl sm:text-3xl font-bold text-red-500 tracking-wider">ハナハナ設定推測ツール</h1>
+        </header>
+        
+        <!-- 機種選択 -->
+        <div class="mb-6">
+            <label for="modelSelector" class="block text-sm font-medium text-gray-400 mb-2 text-center">機種を選択してください</label>
+            <select id="modelSelector" class="w-full bg-gray-700 border border-gray-600 text-white text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
+                <option value="houou">ハナハナホウオウ～天翔～</option>
+                <option value="king">キングハナハナ</option>
+                <option value="dragon">ドラゴンハナハナ～閃光～</option>
+                <option value="star">スターハナハナ</option>
+            </select>
+        </div>
+
+        <!-- 基本情報入力 -->
+        <div class="grid grid-cols-3 gap-3 mb-6">
+            <div class="bg-gray-800 p-3 rounded-lg text-center"><label for="totalGames" class="text-sm font-medium text-gray-400">総ゲーム数</label><input type="number" id="totalGames" class="w-full bg-gray-700 text-white text-2xl font-bold text-center rounded-md p-2 mt-1" value="0" inputmode="numeric"></div>
+            <div class="bg-gray-800 p-3 rounded-lg text-center"><label for="bigCount" class="text-sm font-medium text-gray-400">BIG</label><input type="number" id="bigCount" class="w-full bg-gray-700 text-white text-2xl font-bold text-center rounded-md p-2 mt-1" value="0" inputmode="numeric"></div>
+            <div class="bg-gray-800 p-3 rounded-lg text-center"><label for="regCount" class="text-sm font-medium text-gray-400">REG</label><input type="number" id="regCount" class="w-full bg-gray-700 text-white text-2xl font-bold text-center rounded-md p-2 mt-1" value="0" inputmode="numeric"></div>
+        </div>
+
+        <!-- カウンターエリア -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-gray-800 p-4 rounded-lg flex flex-col items-center justify-between"><label for="bellCountInput" class="text-lg font-semibold mb-2 text-yellow-400">ベル</label><div class="flex items-center space-x-2"><button id="bellDecrement" class="btn counter-btn bg-gray-600 hover:bg-gray-700 rounded-full transition-transform transform active:scale-95">-</button><input type="number" id="bellCountInput" class="w-24 bg-gray-700 text-white text-2xl font-bold text-center rounded-md p-2" value="0" inputmode="numeric"><button id="bellIncrement" class="btn counter-btn bg-yellow-500 hover:bg-yellow-600 text-gray-900 rounded-full transition-transform transform active:scale-95">+</button></div><p class="mt-3 text-sm text-yellow-400">1 / <span id="bellProb">---</span></p></div>
+            <div class="bg-gray-800 p-4 rounded-lg flex flex-col items-center justify-between"><label for="bigSuikaCountInput" class="text-lg font-semibold mb-2 text-red-400">BIG中スイカ</label><div class="flex items-center space-x-2"><button id="bigSuikaDecrement" class="btn counter-btn bg-gray-600 hover:bg-gray-700 rounded-full transition-transform transform active:scale-95">-</button><input type="number" id="bigSuikaCountInput" class="w-24 bg-gray-700 text-white text-2xl font-bold text-center rounded-md p-2" value="0" inputmode="numeric"><button id="bigSuikaIncrement" class="btn counter-btn bg-red-600 hover:bg-red-700 rounded-full transition-transform transform active:scale-95">+</button></div><p class="mt-3 text-sm text-red-400">1 / <span id="bigSuikaProb">---</span></p></div>
+        </div>
+
+        <!-- REGサイドランプ -->
+        <div class="bg-gray-800 p-4 rounded-lg mb-6">
+            <h2 class="text-center text-lg font-semibold mb-4 text-gray-300">REGサイドランプ</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                <div class="flex flex-col items-center"><label class="mb-2 font-medium text-blue-400">青</label><div class="flex items-center space-x-1"><button id="regSideBlueDecrement" class="btn p-2 bg-gray-600 rounded-md">-</button><input type="number" id="regSideBlueCountInput" class="w-12 bg-gray-700 text-center rounded-md p-1" value="0" inputmode="numeric"><button id="regSideBlueIncrement" class="btn p-2 bg-blue-600 rounded-md">+</button></div></div>
+                <div class="flex flex-col items-center"><label class="mb-2 font-medium text-yellow-400">黄</label><div class="flex items-center space-x-1"><button id="regSideYellowDecrement" class="btn p-2 bg-gray-600 rounded-md">-</button><input type="number" id="regSideYellowCountInput" class="w-12 bg-gray-700 text-center rounded-md p-1" value="0" inputmode="numeric"><button id="regSideYellowIncrement" class="btn p-2 bg-yellow-500 text-gray-900 rounded-md">+</button></div></div>
+                <div class="flex flex-col items-center"><label class="mb-2 font-medium text-green-400">緑</label><div class="flex items-center space-x-1"><button id="regSideGreenDecrement" class="btn p-2 bg-gray-600 rounded-md">-</button><input type="number" id="regSideGreenCountInput" class="w-12 bg-gray-700 text-center rounded-md p-1" value="0" inputmode="numeric"><button id="regSideGreenIncrement" class="btn p-2 bg-green-600 rounded-md">+</button></div></div>
+                <div class="flex flex-col items-center"><label class="mb-2 font-medium text-red-400">赤</label><div class="flex items-center space-x-1"><button id="regSideRedDecrement" class="btn p-2 bg-gray-600 rounded-md">-</button><input type="number" id="regSideRedCountInput" class="w-12 bg-gray-700 text-center rounded-md p-1" value="0" inputmode="numeric"><button id="regSideRedIncrement" class="btn p-2 bg-red-600 rounded-md">+</button></div></div>
+            </div>
+            <div class="flex flex-col items-center border-t border-gray-700 pt-4"><label class="mb-2 font-medium rainbow-text">虹 (白)</label><div class="flex items-center space-x-1"><button id="regSideRainbowDecrement" class="btn p-2 bg-gray-600 rounded-md">-</button><input type="number" id="regSideRainbowCountInput" class="w-12 bg-gray-700 text-center rounded-md p-1" value="0" inputmode="numeric"><button id="regSideRainbowIncrement" class="btn p-2 rainbow-btn text-white rounded-md">+</button></div></div>
+            <div class="mt-4 text-center text-sm text-gray-400"><p>奇数示唆: <span id="oddRatio" class="font-bold text-blue-400">0.0%</span> | 偶数示唆: <span id="evenRatio" class="font-bold text-green-400">0.0%</span></p></div>
+        </div>
+        
+        <!-- ボーナス後フェザー -->
+        <div class="bg-gray-800 p-4 rounded-lg mb-6">
+            <h2 class="text-center text-lg font-semibold mb-4 text-gray-300">ボーナス後フェザー (色別)</h2>
+            <div class="space-y-4">
+                <!-- BIG後 -->
+                <div>
+                    <h3 class="text-center text-md font-medium text-gray-400 mb-3">BIG後</h3>
+                    <div class="grid grid-cols-3 gap-y-3 gap-x-2 justify-items-center mb-3">
+                        <div class="flex flex-col items-center"><label class="text-sm text-blue-400">青</label><div class="flex items-center"><button id="bigFeatherBlueDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="bigFeatherBlueInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="bigFeatherBlueIncrement" class="btn p-1 bg-blue-600 rounded-r-md">+</button></div></div>
+                        <div class="flex flex-col items-center"><label class="text-sm text-yellow-400">黄</label><div class="flex items-center"><button id="bigFeatherYellowDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="bigFeatherYellowInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="bigFeatherYellowIncrement" class="btn p-1 bg-yellow-500 text-gray-900 rounded-r-md">+</button></div></div>
+                        <div class="flex flex-col items-center"><label class="text-sm text-green-400">緑</label><div class="flex items-center"><button id="bigFeatherGreenDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="bigFeatherGreenInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="bigFeatherGreenIncrement" class="btn p-1 bg-green-600 rounded-r-md">+</button></div></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-y-3 gap-x-2 justify-items-center w-2/3 mx-auto">
+                        <div class="flex flex-col items-center"><label class="text-sm text-red-400">赤</label><div class="flex items-center"><button id="bigFeatherRedDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="bigFeatherRedInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="bigFeatherRedIncrement" class="btn p-1 bg-red-600 rounded-r-md">+</button></div></div>
+                        <div class="flex flex-col items-center"><label class="text-sm rainbow-text">虹</label><div class="flex items-center"><button id="bigFeatherRainbowDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="bigFeatherRainbowInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="bigFeatherRainbowIncrement" class="btn p-1 rainbow-btn text-white rounded-r-md">+</button></div></div>
+                    </div>
+                </div>
+                <!-- REG後 -->
+                <div class="border-t border-gray-700 pt-4">
+                    <h3 class="text-center text-md font-medium text-gray-400 mb-3">REG後</h3>
+                    <div class="grid grid-cols-3 gap-y-3 gap-x-2 justify-items-center mb-3">
+                        <div class="flex flex-col items-center"><label class="text-sm text-blue-400">青</label><div class="flex items-center"><button id="regFeatherBlueDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="regFeatherBlueInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="regFeatherBlueIncrement" class="btn p-1 bg-blue-600 rounded-r-md">+</button></div></div>
+                        <div class="flex flex-col items-center"><label class="text-sm text-yellow-400">黄</label><div class="flex items-center"><button id="regFeatherYellowDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="regFeatherYellowInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="regFeatherYellowIncrement" class="btn p-1 bg-yellow-500 text-gray-900 rounded-r-md">+</button></div></div>
+                        <div class="flex flex-col items-center"><label class="text-sm text-green-400">緑</label><div class="flex items-center"><button id="regFeatherGreenDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="regFeatherGreenInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="regFeatherGreenIncrement" class="btn p-1 bg-green-600 rounded-r-md">+</button></div></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-y-3 gap-x-2 justify-items-center w-2/3 mx-auto">
+                        <div class="flex flex-col items-center"><label class="text-sm text-red-400">赤</label><div class="flex items-center"><button id="regFeatherRedDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="regFeatherRedInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="regFeatherRedIncrement" class="btn p-1 bg-red-600 rounded-r-md">+</button></div></div>
+                        <div class="flex flex-col items-center"><label class="text-sm rainbow-text">虹</label><div class="flex items-center"><button id="regFeatherRainbowDecrement" class="btn p-1 bg-gray-600 rounded-l-md">-</button><input type="number" id="regFeatherRainbowInput" class="w-12 bg-gray-700 text-center p-1" value="0" inputmode="numeric"><button id="regFeatherRainbowIncrement" class="btn p-1 rainbow-btn text-white rounded-r-md">+</button></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 設定推測結果 -->
+        <div class="bg-gray-800 p-4 rounded-lg"><h2 class="text-center text-lg font-semibold mb-4 text-gray-300">設定推測結果</h2><div id="estimationResult" class="space-y-2"></div></div>
+        
+        <!-- AI 設定推測アドバイザー -->
+        <div class="bg-gray-800 p-4 rounded-lg mt-6">
+            <h2 class="text-center text-lg font-semibold mb-4 text-gray-300">
+                <span class="rainbow-text">AI 設定推測アドバイザー</span>
+            </h2>
+            <p class="text-center text-sm text-gray-400 mb-4">現在の遊技データから、AIが台の状況を分析します。</p>
+            <div class="text-center">
+                <button id="aiAdvisorButton" class="btn bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg transition-transform transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                    ✨ AIに分析を依頼する
+                </button>
+            </div>
+            <div id="aiAdvisorResult" class="mt-4 p-4 bg-gray-900 rounded-lg text-gray-300 hidden">
+                <!-- AIの分析結果がここに表示される -->
+            </div>
+        </div>
+
+        <div class="mt-8 text-center"><button id="resetButton" class="btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg transition-transform transform active:scale-95">リセット</button></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = {
+                modelSelector: document.getElementById('modelSelector'),
+                totalGames: document.getElementById('totalGames'), bigCount: document.getElementById('bigCount'), regCount: document.getElementById('regCount'),
+                bell: { input: document.getElementById('bellCountInput'), inc: document.getElementById('bellIncrement'), dec: document.getElementById('bellDecrement'), prob: document.getElementById('bellProb') },
+                bigSuika: { input: document.getElementById('bigSuikaCountInput'), inc: document.getElementById('bigSuikaIncrement'), dec: document.getElementById('bigSuikaDecrement'), prob: document.getElementById('bigSuikaProb') },
+                regSide: {}, feather: { big: {}, reg: {} },
+                oddRatio: document.getElementById('oddRatio'), evenRatio: document.getElementById('evenRatio'),
+                estimationResult: document.getElementById('estimationResult'), resetButton: document.getElementById('resetButton'),
+                aiAdvisorButton: document.getElementById('aiAdvisorButton'),
+                aiAdvisorResult: document.getElementById('aiAdvisorResult'),
+            };
+            const colors = ['blue', 'yellow', 'green', 'red', 'rainbow'];
+            colors.forEach(c => {
+                const C = c.charAt(0).toUpperCase() + c.slice(1);
+                elements.regSide[c] = { input: document.getElementById(`regSide${C}CountInput`), inc: document.getElementById(`regSide${C}Increment`), dec: document.getElementById(`regSide${C}Decrement`) };
+                elements.feather.big[c] = { input: document.getElementById(`bigFeather${C}Input`), inc: document.getElementById(`bigFeather${C}Increment`), dec: document.getElementById(`bigFeather${C}Decrement`) };
+                elements.feather.reg[c] = { input: document.getElementById(`regFeather${C}Input`), inc: document.getElementById(`regFeather${C}Increment`), dec: document.getElementById(`regFeather${C}Decrement`) };
+            });
+
+            let state = {
+                currentModel: 'houou',
+                totalGames: 0, bigCount: 0, regCount: 0, bell: 0, bigSuika: 0,
+                regSide: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 },
+                feather: { big: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 }, reg: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 } }
+            };
+
+            const theoreticalValues = {
+                houou: {
+                    1: { bell: 7.45, bigSuika: 40.96, regOdd: 0.7, feather: { odd: 0.2, even: -0.2, rainbow: -1 } },
+                    2: { bell: 7.37, bigSuika: 36.41, regOdd: 0.4, feather: { odd: -0.2, even: 0.2, rainbow: 0 } },
+                    3: { bell: 7.28, bigSuika: 40.96, regOdd: 0.7, feather: { odd: 0.3, even: -0.3, rainbow: 0 } },
+                    4: { bell: 7.20, bigSuika: 36.41, regOdd: 0.4, feather: { odd: -0.3, even: 0.3, rainbow: 0.5 } },
+                    5: { bell: 7.12, bigSuika: 40.96, regOdd: 0.7, feather: { odd: 0.4, even: -0.4, rainbow: 1.0 } },
+                    6: { bell: 7.05, bigSuika: 32.77, regOdd: 0.4, feather: { odd: -0.5, even: 0.5, rainbow: 2.0 }, regRainbowBonus: true },
+                },
+                king: {
+                    1: { bell: 7.81, bigSuika: 46.8, regOdd: 0.7, feather: { odd: 0.2, even: -0.2, rainbow: -1 } },
+                    2: { bell: 7.71, bigSuika: 42.0, regOdd: 0.4, feather: { odd: -0.2, even: 0.2, rainbow: 0 } },
+                    3: { bell: 7.62, bigSuika: 46.8, regOdd: 0.7, feather: { odd: 0.3, even: -0.3, rainbow: 0 } },
+                    4: { bell: 7.53, bigSuika: 42.0, regOdd: 0.4, feather: { odd: -0.3, even: 0.3, rainbow: 0.5 } },
+                    5: { bell: 7.44, bigSuika: 46.8, regOdd: 0.7, feather: { odd: 0.4, even: -0.4, rainbow: 1.0 } },
+                    6: { bell: 7.35, bigSuika: 36.4, regOdd: 0.4, feather: { odd: -0.5, even: 0.5, rainbow: 2.0 }, regRainbowBonus: true },
+                },
+                dragon: {
+                    1: { bell: 7.89, bigSuika: 48.2, regOdd: 0.65, feather: { odd: 0.1, even: -0.1, rainbow: 0 } },
+                    2: { bell: 7.79, bigSuika: 44.3, regOdd: 0.45, feather: { odd: -0.1, even: 0.1, rainbow: 0 } },
+                    3: { bell: 7.69, bigSuika: 48.2, regOdd: 0.65, feather: { odd: 0.1, even: -0.1, rainbow: 0 } },
+                    4: { bell: 7.59, bigSuika: 44.3, regOdd: 0.45, feather: { odd: -0.1, even: 0.1, rainbow: 0.2 } },
+                    5: { bell: 7.49, bigSuika: 48.2, regOdd: 0.65, feather: { odd: 0.1, even: -0.1, rainbow: 0.5 } },
+                    6: { bell: 7.39, bigSuika: 39.0, regOdd: 0.45, feather: { odd: -0.1, even: 0.1, rainbow: 1.0 }, regRainbowBonus: true },
+                },
+                star: {
+                    1: { bell: 7.53, bigSuika: 42.0, regOdd: 0.7, feather: { odd: 0.1, even: -0.1, rainbow: 1.0 } },
+                    2: { bell: 7.49, bigSuika: 42.0, regOdd: 0.4, feather: { odd: -0.1, even: 0.1, rainbow: 1.0 } },
+                    3: { bell: 7.44, bigSuika: 42.0, regOdd: 0.7, feather: { odd: 0.1, even: -0.1, rainbow: 1.0 } },
+                    4: { bell: 7.39, bigSuika: 42.0, regOdd: 0.4, feather: { odd: -0.1, even: 0.1, rainbow: 1.0 } },
+                    5: { bell: 7.35, bigSuika: 42.0, regOdd: 0.7, feather: { odd: 0.1, even: -0.1, rainbow: 1.0 } },
+                    6: { bell: 7.30, bigSuika: 34.8, regOdd: 0.4, feather: { odd: -0.1, even: 0.1, rainbow: 1.0 } },
+                }
+            };
+            
+            const setupListeners = (obj, stateRef) => {
+                for (const key in obj) {
+                    if (obj[key].input) {
+                        ((currentKey) => {
+                            obj[currentKey].inc.addEventListener('click', () => { stateRef[currentKey]++; updateAll(); });
+                            obj[currentKey].dec.addEventListener('click', () => { if (stateRef[currentKey] > 0) stateRef[currentKey]--; updateAll(); });
+                            obj[currentKey].input.addEventListener('change', () => { updateStateFromInput(); updateAll(); });
+                        })(key);
+                    } else {
+                        setupListeners(obj[key], stateRef[key]);
+                    }
+                }
+            };
+            
+            elements.modelSelector.addEventListener('change', (e) => { state.currentModel = e.target.value; updateAll(); });
+            ['totalGames', 'bigCount', 'regCount'].forEach(key => { elements[key].addEventListener('change', () => { updateStateFromInput(); updateAll(); }); });
+            setupListeners({ bell: elements.bell, bigSuika: elements.bigSuika }, state);
+            setupListeners(elements.regSide, state.regSide);
+            setupListeners(elements.feather, state.feather);
+            
+            elements.resetButton.addEventListener('click', () => { if (confirm('データをリセットしますか？')) { resetState(); updateAll(); } });
+
+            elements.aiAdvisorButton.addEventListener('click', handleAiAdvisorClick);
+
+            function updateStateFromInput() {
+                state.totalGames = parseInt(elements.totalGames.value) || 0;
+                state.bigCount = parseInt(elements.bigCount.value) || 0;
+                state.regCount = parseInt(elements.regCount.value) || 0;
+                state.bell = parseInt(elements.bell.input.value) || 0;
+                state.bigSuika = parseInt(elements.bigSuika.input.value) || 0;
+                colors.forEach(c => {
+                    state.regSide[c] = parseInt(elements.regSide[c].input.value) || 0;
+                    state.feather.big[c] = parseInt(elements.feather.big[c].input.value) || 0;
+                    state.feather.reg[c] = parseInt(elements.feather.reg[c].input.value) || 0;
+                });
+            }
+
+            function resetState() {
+                const model = state.currentModel;
+                state = {
+                    currentModel: model, totalGames: 0, bigCount: 0, regCount: 0, bell: 0, bigSuika: 0,
+                    regSide: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 },
+                    feather: { big: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 }, reg: { blue: 0, yellow: 0, green: 0, red: 0, rainbow: 0 } }
+                };
+            }
+
+            function updateAll() { updateDisplay(); calculateAndDisplayProbabilities(); estimateSettings(); }
+
+            function updateDisplay() {
+                elements.totalGames.value = state.totalGames;
+                elements.bigCount.value = state.bigCount;
+                elements.regCount.value = state.regCount;
+                elements.bell.input.value = state.bell;
+                elements.bigSuika.input.value = state.bigSuika;
+                colors.forEach(c => {
+                    elements.regSide[c].input.value = state.regSide[c];
+                    elements.feather.big[c].input.value = state.feather.big[c];
+                    elements.feather.reg[c].input.value = state.feather.reg[c];
+                });
+            }
+
+            function calculateAndDisplayProbabilities() {
+                elements.bell.prob.textContent = state.bell > 0 ? (state.totalGames / state.bell).toFixed(2) : '---';
+                const bigTotalGames = state.bigCount * 24;
+                elements.bigSuika.prob.textContent = state.bigSuika > 0 && bigTotalGames > 0 ? (bigTotalGames / state.bigSuika).toFixed(2) : '---';
+                
+                const totalFlashes = state.regSide.blue + state.regSide.yellow + state.regSide.green + state.regSide.red;
+                if (totalFlashes > 0) {
+                    elements.oddRatio.textContent = (((state.regSide.blue + state.regSide.yellow) / totalFlashes) * 100).toFixed(1) + '%';
+                    elements.evenRatio.textContent = (((state.regSide.green + state.regSide.red) / totalFlashes) * 100).toFixed(1) + '%';
+                } else {
+                    elements.oddRatio.textContent = '0.0%';
+                    elements.evenRatio.textContent = '0.0%';
+                }
+            }
+
+            function estimateSettings() {
+                if (state.totalGames < 100) {
+                    elements.estimationResult.innerHTML = '<p class="text-center text-gray-500">ゲーム数が不足しています。</p>'; return;
+                }
+
+                const currentModelValues = theoreticalValues[state.currentModel];
+                
+                if (state.feather.reg.rainbow > 0 && currentModelValues[6].regRainbowBonus) {
+                    const possibilities = { 1: 0.5, 2: 0.5, 3: 1.0, 4: 1.0, 5: 2.0, 6: 95.0 };
+                    displayEstimationResult(possibilities);
+                    return;
+                }
+
+                const scores = {};
+                for (let i = 1; i <= 6; i++) {
+                    const setting = i.toString();
+                    const theory = currentModelValues[setting];
+                    let score = 0;
+
+                    if (state.bell > 0) { score += Math.abs((state.totalGames / state.bell) - theory.bell) * 2; }
+                    const bigTotalGames = state.bigCount * 24;
+                    if (state.bigSuika > 0 && bigTotalGames > 0) { score += Math.abs((bigTotalGames / state.bigSuika) - theory.bigSuika) * 5; }
+                    
+                    const totalFlashes = state.regSide.blue + state.regSide.yellow + state.regSide.green + state.regSide.red;
+                    if (totalFlashes > 0) { score += Math.abs(((state.regSide.blue + state.regSide.yellow) / totalFlashes) - theory.regOdd) * 4; }
+                    
+                    if (theory.feather) {
+                        let featherScore = 0;
+                        const allFeathersBig = state.feather.big;
+                        const allFeathersReg = state.feather.reg;
+                        featherScore += (allFeathersBig.blue + allFeathersBig.yellow + allFeathersReg.blue + allFeathersReg.yellow) * theory.feather.odd;
+                        featherScore += (allFeathersBig.green + allFeathersBig.red + allFeathersReg.green + allFeathersReg.red) * theory.feather.even;
+                        featherScore += (allFeathersBig.rainbow + allFeathersReg.rainbow) * theory.feather.rainbow;
+                        score -= featherScore * 3;
+                    }
+                    
+                    scores[setting] = Math.max(0, score);
+                }
+                
+                let invertedScoreSum = 0;
+                for (let i = 1; i <= 6; i++) { scores[i] = 1 / (scores[i] + 0.001); invertedScoreSum += scores[i]; }
+                const possibilities = {};
+                for (let i = 1; i <= 6; i++) { possibilities[i] = (scores[i] / invertedScoreSum) * 100; }
+
+                displayEstimationResult(possibilities);
+            }
+
+            function displayEstimationResult(possibilities) {
+                let html = '';
+                const sorted = Object.keys(possibilities).sort((a, b) => possibilities[b] - possibilities[a]);
+                sorted.forEach(s => {
+                    const p = possibilities[s];
+                    const isBest = s === sorted[0];
+                    html += `<div class="flex items-center space-x-3"><span class="w-12 text-lg ${isBest ? 'text-red-400 font-bold' : 'text-gray-300'}">設定 ${s}</span><div class="w-full bg-gray-700 rounded-full h-6"><div class="${isBest ? 'bg-red-500' : 'bg-gray-600'} h-6 rounded-full text-center text-white text-sm flex items-center justify-center" style="width: ${p.toFixed(1)}%;">${p > 5 ? p.toFixed(1) + '%' : ''}</div></div></div>`;
+                });
+                elements.estimationResult.innerHTML = html;
+            }
+
+            async function handleAiAdvisorClick() {
+                if (state.totalGames < 100) {
+                    alert('AI分析には最低100ゲーム以上のデータが必要です。');
+                    return;
+                }
+
+                elements.aiAdvisorButton.disabled = true;
+                elements.aiAdvisorButton.textContent = '分析中...';
+                elements.aiAdvisorResult.classList.remove('hidden');
+                elements.aiAdvisorResult.innerHTML = '<p class="text-center">AIが分析しています。しばらくお待ちください...</p>';
+
+                const modelName = elements.modelSelector.options[elements.modelSelector.selectedIndex].text;
+                const bellProbText = state.bell > 0 ? (state.totalGames / state.bell).toFixed(2) : '---';
+                const bigSuikaProbText = (state.bigCount * 24 > 0 && state.bigSuika > 0) ? ((state.bigCount * 24) / state.bigSuika).toFixed(2) : '---';
+
+                const prompt = `
+あなたはハナハナシリーズを熟知したプロのパチスロプレイヤーです。
+以下の実践データに基づいて、台の設定を推測し、その根拠を分析してください。
+
+分析結果は、以下の形式で、初心者にも分かりやすくマークダウン形式で記述してください。
+
+### ポジティブな要素 (高設定の可能性を高める要素)
+- (箇条書きで記述)
+
+### ネガティブな要素 (高設定の可能性を下げる要素)
+- (箇条書きで記述)
+
+### 総合的な見解
+(今後の立ち回りについてのアドバイスを、断定は避けつつ記述)
+
+---
+# 実践データ
+- 機種: ${modelName}
+- 総ゲーム数: ${state.totalGames} G
+- BIG回数: ${state.bigCount} 回 (確率 1/${state.bigCount > 0 ? (state.totalGames / state.bigCount).toFixed(1) : '---'})
+- REG回数: ${state.regCount} 回 (確率 1/${state.regCount > 0 ? (state.totalGames / state.regCount).toFixed(1) : '---'})
+- 合算確率: 1/${(state.bigCount + state.regCount) > 0 ? (state.totalGames / (state.bigCount + state.regCount)).toFixed(1) : '---'}
+- ベル確率: 1/${bellProbText}
+- BIG中スイカ: ${state.bigSuika} 回 (BIG ${state.bigCount}回, 確率 1/${bigSuikaProbText})
+- REGサイドランプ: 青:${state.regSide.blue}, 黄:${state.regSide.yellow}, 緑:${state.regSide.green}, 赤:${state.regSide.red}, 虹:${state.regSide.rainbow}
+- BIG後フェザーランプ: 青:${state.feather.big.blue}, 黄:${state.feather.big.yellow}, 緑:${state.feather.big.green}, 赤:${state.feather.big.red}, 虹:${state.feather.big.rainbow}
+- REG後フェザーランプ: 青:${state.feather.reg.blue}, 黄:${state.feather.reg.yellow}, 緑:${state.feather.reg.green}, 赤:${state.feather.reg.red}, 虹:${state.feather.reg.rainbow}
+---
+
+上記データに基づいて、分析を開始してください。
+`;
+                try {
+                    const text = await callGeminiApi(prompt);
+                    elements.aiAdvisorResult.innerHTML = marked.parse(text);
+                } catch (error) {
+                    console.error("Gemini API Error:", error);
+                    elements.aiAdvisorResult.innerHTML = '<p class="text-center text-red-400">AI分析中にエラーが発生しました。時間をおいて再度お試しください。</p>';
+                } finally {
+                    elements.aiAdvisorButton.disabled = false;
+                    elements.aiAdvisorButton.innerHTML = '✨ AIに分析を依頼する';
+                }
+            }
+            
+            async function callGeminiApi(prompt) {
+                 let chatHistory = [];
+                 chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                 const payload = { contents: chatHistory };
+                 const apiKey = "" 
+                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                 
+                 const result = await fetchWithBackoff(apiUrl, payload);
+                 if (result.candidates && result.candidates.length > 0 &&
+                     result.candidates[0].content && result.candidates[0].content.parts &&
+                     result.candidates[0].content.parts.length > 0) {
+                   return result.candidates[0].content.parts[0].text;
+                 } else {
+                   throw new Error("AIからの応答が予期した形式ではありません。");
+                 }
+            }
+
+            async function fetchWithBackoff(apiUrl, payload, maxRetries = 3) {
+                let delay = 1000;
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.ok) {
+                            return await response.json();
+                        } else if (response.status === 429 || response.status >= 500) {
+                            if (i === maxRetries - 1) throw new Error(`API call failed with status ${response.status}`);
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            delay *= 2;
+                        } else {
+                            throw new Error(`API call failed with status ${response.status}`);
+                        }
+                    } catch (error) {
+                        if (i === maxRetries - 1) throw error;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2;
+                    }
+                }
+            }
+
+            updateAll();
+        });
+    </script>
+</body>
+</html>
